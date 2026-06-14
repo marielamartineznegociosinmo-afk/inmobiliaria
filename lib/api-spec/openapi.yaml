@@ -1,0 +1,504 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Mariela Martínez Inmobiliaria API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: properties
+    description: Property listings
+  - name: auth
+    description: Authentication
+  - name: upload
+    description: File uploads
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /properties:
+    get:
+      operationId: listProperties
+      tags: [properties]
+      summary: List properties with optional filtering
+      parameters:
+        - name: operation
+          in: query
+          schema:
+            type: string
+            enum: [venta, alquiler]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [casa, departamento, terreno, local, oficina, campo]
+        - name: neighborhood
+          in: query
+          schema:
+            type: string
+        - name: bedrooms
+          in: query
+          schema:
+            type: integer
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: featured
+          in: query
+          schema:
+            type: boolean
+        - name: active
+          in: query
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Property"
+    post:
+      operationId: createProperty
+      tags: [properties]
+      summary: Create a new property (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PropertyInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Property"
+        "401":
+          description: Unauthorized
+
+  /properties/featured:
+    get:
+      operationId: getFeaturedProperties
+      tags: [properties]
+      summary: Get featured properties for homepage
+      responses:
+        "200":
+          description: Featured properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Property"
+
+  /properties/stats:
+    get:
+      operationId: getPropertyStats
+      tags: [properties]
+      summary: Get aggregate stats for the agency homepage
+      responses:
+        "200":
+          description: Agency stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgencyStats"
+
+  /properties/{id}:
+    get:
+      operationId: getProperty
+      tags: [properties]
+      summary: Get a single property
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Property detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Property"
+        "404":
+          description: Not found
+    put:
+      operationId: updateProperty
+      tags: [properties]
+      summary: Update a property (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PropertyUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Property"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteProperty
+      tags: [properties]
+      summary: Delete a property (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+
+  /properties/{id}/related:
+    get:
+      operationId: getRelatedProperties
+      tags: [properties]
+      summary: Get related properties for a given property
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Related properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Property"
+
+  /auth/login:
+    post:
+      operationId: adminLogin
+      tags: [auth]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResult"
+        "401":
+          description: Invalid credentials
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Property:
+      type: object
+      required:
+        - id
+        - title
+        - type
+        - operation
+        - price
+        - currency
+        - neighborhood
+        - address
+        - city
+        - active
+        - featured
+        - photos
+        - createdAt
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        type:
+          type: string
+          enum: [casa, departamento, terreno, local, oficina, campo]
+        operation:
+          type: string
+          enum: [venta, alquiler]
+        price:
+          type: number
+        currency:
+          type: string
+          enum: [ARS, USD]
+        neighborhood:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        bedrooms:
+          type: ["integer", "null"]
+        bathrooms:
+          type: ["integer", "null"]
+        coveredArea:
+          type: ["number", "null"]
+        totalArea:
+          type: ["number", "null"]
+        garage:
+          type: ["boolean", "null"]
+        age:
+          type: ["integer", "null"]
+        additionalFeatures:
+          type: ["string", "null"]
+        photos:
+          type: array
+          items:
+            type: string
+        coverPhoto:
+          type: ["string", "null"]
+        featured:
+          type: boolean
+        active:
+          type: boolean
+        createdAt:
+          type: string
+
+    PropertyInput:
+      type: object
+      required:
+        - title
+        - type
+        - operation
+        - price
+        - currency
+        - neighborhood
+        - address
+        - city
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [casa, departamento, terreno, local, oficina, campo]
+        operation:
+          type: string
+          enum: [venta, alquiler]
+        price:
+          type: number
+        currency:
+          type: string
+          enum: [ARS, USD]
+        neighborhood:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        coveredArea:
+          type: number
+        totalArea:
+          type: number
+        garage:
+          type: boolean
+        age:
+          type: integer
+        additionalFeatures:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+        coverPhoto:
+          type: string
+        featured:
+          type: boolean
+        active:
+          type: boolean
+
+    PropertyUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [casa, departamento, terreno, local, oficina, campo]
+        operation:
+          type: string
+          enum: [venta, alquiler]
+        price:
+          type: number
+        currency:
+          type: string
+          enum: [ARS, USD]
+        neighborhood:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        coveredArea:
+          type: number
+        totalArea:
+          type: number
+        garage:
+          type: boolean
+        age:
+          type: integer
+        additionalFeatures:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+        coverPhoto:
+          type: string
+        featured:
+          type: boolean
+        active:
+          type: boolean
+
+    AgencyStats:
+      type: object
+      required:
+        - totalProperties
+        - activeProperties
+        - forSale
+        - forRent
+        - yearsExperience
+        - propertiesSold
+        - happyClients
+      properties:
+        totalProperties:
+          type: integer
+        activeProperties:
+          type: integer
+        forSale:
+          type: integer
+        forRent:
+          type: integer
+        yearsExperience:
+          type: integer
+        propertiesSold:
+          type: integer
+        happyClients:
+          type: integer
+
+    LoginInput:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    LoginResult:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+
+    UploadResult:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+
+    DeleteResult:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean

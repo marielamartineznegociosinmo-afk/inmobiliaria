@@ -1,0 +1,166 @@
+PROMPT (paste this into Replit)
+
+Build a complete, modern real estate website for Mariela Martínez Negocios Inmobiliarios, a real estate agency based in Paraná, Entre Ríos, Argentina. This is a custom platform — no WordPress, no Wix, no third-party CMS.
+
+TECH STACK
+Frontend: React + Vite + Tailwind CSS + React Router
+Backend: Node.js + Express + PostgreSQL (or SQLite for development)
+ORM: Prisma
+File uploads: Multer (property photos)
+Environment: .env for config
+
+DESIGN SYSTEM
+Typography: Montserrat (Google Fonts) — use font-weights 300, 400, 600, 700, 800
+Color palette:
+
+White: #FFFFFF
+Black: #0A0A0A
+Light blue (celeste): #5BB8E8
+Deep blue (azul): #1A3A6B
+
+Design direction: Clean, professional, minimal-luxury. Think editorial real estate — generous white space, strong typographic hierarchy, bold section headings in deep blue, celeste used as a sharp accent for CTAs and highlights. No gradients, no shadows on everything — selective, intentional use. Mobile-first responsive layout.
+All page text MUST be written in Spanish (Argentina), with precise and professional UX writing. Every label, button, placeholder, heading, description, and microcopy must be in Spanish. Avoid generic filler text — write real, clear, conversion-oriented copy.
+
+SITE STRUCTURE & PAGES
+
+1. HOME (/)
+Hero section:
+
+Headline: "Tu próxima propiedad, a un paso"
+Subheadline: "Encontrá casas, departamentos y terrenos en Paraná con la asesoría de quien más conoce el mercado local."
+Main property search bar with fields: operation type (Venta / Alquiler), property type dropdown, neighborhood/location input, and a CTA button: "Buscar propiedades"
+
+Featured properties section:
+
+Title: "Propiedades destacadas"
+Grid of 6 property cards (pulled from DB, flagged as featured)
+Each card: photo, operation badge (Venta/Alquiler), price, location, bedrooms, CTA "Ver propiedad"
+
+About teaser section:
+
+Title: "Más de 15 años en el mercado inmobiliario de Paraná"
+Short paragraph + link "Conocé nuestra historia"
+Stat highlights: years of experience, properties sold, happy clients
+
+WhatsApp floating button:
+
+Fixed bottom-right corner
+Icon + text "Consultá por WhatsApp"
+Links to: https://wa.me/5493436214375?text=Hola,%20quiero%20consultar%20sobre%20una%20propiedad
+
+
+2. PROPERTIES (/propiedades)
+Filter sidebar or top bar with:
+
+Operación: Venta / Alquiler (toggle or select)
+Tipo de inmueble: Casa, Departamento, Terreno, Local, Oficina, Campo
+Barrio / Ubicación: text input or dropdown
+Dormitorios: 1, 2, 3, 4+
+Precio mínimo / máximo: range inputs
+Button: "Aplicar filtros" + "Limpiar filtros"
+
+Property grid:
+
+Cards with: main photo (carousel on hover or click), operation badge, price, location, bedrooms count, m² total, short description (truncated), CTA button: "Ver detalles"
+
+Individual property page (/propiedades/:id):
+
+Photo gallery (main image + thumbnails, lightbox on click)
+Title, price prominently displayed
+Location with neighborhood name
+Key characteristics grid: dormitorios, baños, superficie cubierta, superficie total, antigüedad, cochera (yes/no)
+Full description section
+WhatsApp CTA button: "Consultar por esta propiedad" — links to WA with pre-filled message including property title
+Related properties section: "También te puede interesar"
+
+
+3. ABOUT (/nosotros)
+Sections:
+
+Hero: "Somos Mariela Martínez Negocios Inmobiliarios" + short powerful statement
+Story: "Nuestra historia" — paragraph about the agency's founding and trajectory in Paraná
+Values: 3–4 cards with icons — Transparencia, Compromiso, Conocimiento local, Atención personalizada
+Services: "¿Qué hacemos?" — Compraventa, Alquileres, Tasaciones, Asesoramiento legal, Administración de propiedades
+Why choose us: "¿Por qué elegirnos?" — differentiators list with checkmarks
+
+
+4. TASACIONES (/tasaciones)
+Purpose: Capture owners who want to sell or rent their property.
+Sections:
+
+Headline: "¿Querés saber cuánto vale tu propiedad?"
+Subtext: "Realizamos tasaciones profesionales y gratuitas en Paraná y alrededores. Te asesoramos para que tomes la mejor decisión."
+How it works: 3-step process — Contacto → Visita → Informe de tasación
+Single CTA: large WhatsApp button — "Solicitá tu tasación gratis" — with pre-filled WA message: "Hola, quiero solicitar una tasación para mi propiedad."
+Trust section: brief note about professional credentials, years in the market
+
+
+5. CONTACT (/contacto)
+Content:
+
+Agency name + logo
+Address: "Paraná, Entre Ríos, Argentina" (admin-configurable)
+Phone: displayed + click-to-call
+WhatsApp: button "Escribinos por WhatsApp"
+Email (optional)
+Social media links: Instagram, Facebook (icons only, links configurable)
+Embedded Google Map (configurable iframe src via .env or admin)
+No complex contact forms — WhatsApp is the primary contact channel
+
+
+BACKEND / ADMIN
+Admin panel at /admin (protected with simple JWT auth):
+Property management:
+
+List all properties with edit/delete
+Create/edit property form with fields:
+
+Título, Descripción
+Tipo (Casa, Departamento, Terreno, Local, Oficina, Campo)
+Operación (Venta, Alquiler)
+Precio (number + currency ARS/USD selector)
+Barrio / Dirección / Localidad
+Dormitorios, Baños, Superficie cubierta (m²), Superficie total (m²)
+Cochera (boolean), Antigüedad (years)
+Características adicionales (tags or textarea)
+Fotos (upload multiple, set cover photo, reorder)
+Destacada (boolean — shows on homepage)
+Activa (boolean — published/hidden)
+
+
+
+REST API endpoints:
+
+GET /api/properties — list with filtering support via query params
+GET /api/properties/:id — single property
+POST /api/properties — create (admin)
+PUT /api/properties/:id — update (admin)
+DELETE /api/properties/:id — delete (admin)
+POST /api/upload — image upload (admin)
+POST /api/auth/login — admin login
+
+
+ADDITIONAL REQUIREMENTS
+
+SEO basics: meta titles, descriptions, og:image per page, sitemap.xml
+Mobile responsive on all pages (priority: mobile)
+Page transitions: subtle fade between routes
+404 page with message: "Esta página no existe" + button "Volver al inicio"
+Loading states on all async fetches
+WhatsApp button visible on every page
+No blog section
+No testimonials/reviews section
+No complex multi-field inquiry forms
+
+
+SAMPLE DATA
+Seed the database with 6 sample properties in Paraná, Entre Ríos — realistic Argentine property data with prices in ARS and USD, varied types (casa, departamento, terreno), varied operations (venta, alquiler), and placeholder images from Unsplash (real estate / architecture).
+
+ENVIRONMENT VARIABLES NEEDED
+DATABASE_URL=
+JWT_SECRET=
+WHATSAPP_NUMBER=5493436214375
+UPLOAD_DIR=./uploads
+PORT=3000
+
+Start by scaffolding the full project structure, then implement backend models and API, then frontend pages in order: Home → Properties → Property Detail → About → Tasaciones → Contact → Admin.

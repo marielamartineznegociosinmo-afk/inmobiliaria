@@ -1,0 +1,120 @@
+Revisar toda la web y corregir el contenido, UX writing y mensajes de marca para que representen fielmente a Mariela Martínez Negocios Inmobiliarios.
+
+IMPORTANTE:
+
+No utilizar información inventada ni genérica.
+
+Corregir cualquier referencia a:
+
+"15 años de experiencia"
+"líderes del mercado"
+"la mejor inmobiliaria"
+"miles de clientes"
+"cientos de operaciones"
+cualquier estadística que no esté validada
+
+La inmobiliaria nació en 2020 y es una empresa familiar de Paraná, Entre Ríos.
+
+La comunicación debe transmitir:
+
+cercanía
+confianza
+profesionalismo
+atención personalizada
+conocimiento del mercado local
+
+Evitar lenguaje corporativo, exagerado o típico de plantillas inmobiliarias.
+
+REVISAR Y CORREGIR TODAS LAS SECCIONES
+
+HOME
+
+Reemplazar titulares genéricos por mensajes centrados en el usuario.
+
+Priorizar:
+
+"Encontrá la propiedad que estás buscando"
+
+"Compra, venta y alquiler de inmuebles en Paraná y la región"
+
+El buscador debe ser el elemento principal de la página.
+
+Eliminar cualquier texto innecesario que distraiga del objetivo principal.
+
+PROPIEDADES
+
+Dar prioridad visual a:
+
+Fotografías
+Tipo de operación
+Precio
+Ubicación
+Botón de WhatsApp
+
+Reducir información redundante.
+
+Hacer que la consulta por WhatsApp sea el principal llamado a la acción.
+
+NOSOTROS
+
+Reescribir completamente esta sección.
+
+Información correcta:
+
+Mariela Martínez Negocios Inmobiliarios es una inmobiliaria familiar de Paraná que desarrolla su actividad desde 2020.
+
+Trabaja en Paraná, Oro Verde, San Benito, Colonia Avellaneda y localidades cercanas.
+
+Servicios:
+
+Compra y venta
+Alquileres
+Tasaciones
+Asesoramiento inmobiliario
+
+Eliminar frases vacías como:
+
+"Somos líderes"
+"Somos la mejor opción"
+"Tenemos la mayor experiencia"
+
+Reemplazar por argumentos reales y creíbles.
+
+POR QUÉ ELEGIRNOS
+
+En lugar de promesas exageradas utilizar:
+
+Atención personalizada
+Acompañamiento durante todo el proceso
+Conocimiento del mercado local
+Transparencia en cada operación
+Comunicación clara y directa
+
+CONTACTO
+
+Cambiar el enfoque para incentivar la conversación por WhatsApp.
+
+Texto sugerido:
+
+"Si querés consultar por una propiedad, vender, alquilar o solicitar una tasación, escribinos por WhatsApp y te asesoraremos personalmente."
+
+DISEÑO
+
+Mantener la paleta institucional:
+
+Azul principal #343A97
+Celeste institucional #18AEE5
+Blanco 
+Negro para textos
+
+Utilizar exclusivamente Montserrat.
+
+Aumentar espacios en blanco.
+
+Reducir elementos decorativos innecesarios.
+
+La web debe sentirse moderna, elegante y profesional.
+
+No debe parecer una plantilla inmobiliaria genérica.
+
+El objetivo principal es que el usuario encuentre una propiedad y se contacte por WhatsApp.
