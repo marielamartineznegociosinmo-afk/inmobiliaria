@@ -2,6 +2,6 @@
   "buildCommand": "pnpm --filter @workspace/mariela-inmobiliaria run build",
   "outputDirectory": "artifacts/mariela-inmobiliaria/dist/public",
   "env": {
-    "VITE_API_URL": "@vite-api-url"
+    "VITE_API_URL": "https://asset-manager-api.onrender.com"
   }
 }
