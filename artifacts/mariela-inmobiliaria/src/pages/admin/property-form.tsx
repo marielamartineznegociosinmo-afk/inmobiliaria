@@ -98,7 +98,7 @@ export default function PropertyForm() {
       for (let i = 0; i < e.target.files.length; i++) {
         const file = e.target.files[i];
         const fd = new FormData();
-        fd.append("photo", file);
+        fd.append("file", file);
         
         const response = await fetch("/api/upload", {
           method: "POST",
