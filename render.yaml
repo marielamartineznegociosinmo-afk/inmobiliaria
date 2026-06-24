@@ -3,7 +3,7 @@ services:
     name: asset-manager-api
     env: node
     plan: free
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @workspace/db run push && pnpm --filter @workspace/api-server run build
     startCommand: pnpm --filter @workspace/api-server run start
     healthCheckPath: /api/properties
     envVars:
