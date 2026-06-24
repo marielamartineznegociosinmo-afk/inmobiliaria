@@ -3,12 +3,5 @@
   "outputDirectory": "artifacts/mariela-inmobiliaria/dist/public",
   "env": {
     "VITE_API_URL": "@vite-api-url"
-  },
-  "envs": [
-    {
-      "key": "VITE_API_URL",
-      "value": "https://asset-manager-api.onrender.com",
-      "target": "production"
-    }
-  ]
+  }
 }
