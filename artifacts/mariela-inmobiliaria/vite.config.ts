@@ -56,6 +56,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Disable sourcemaps completely to prevent "Can't resolve original location of error" in production
     sourcemap: false,
     rollupOptions: {
       output: {
