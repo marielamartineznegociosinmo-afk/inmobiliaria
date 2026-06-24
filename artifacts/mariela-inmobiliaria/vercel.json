@@ -3,5 +3,11 @@
   "outputDirectory": "dist/public",
   "env": {
     "VITE_API_URL": "https://inmobiliaria-5s58.onrender.com"
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
