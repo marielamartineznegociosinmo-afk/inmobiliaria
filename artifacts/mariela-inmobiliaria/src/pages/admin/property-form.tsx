@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { useCreateProperty, useUpdateProperty, useGetProperty, getListPropertiesQueryKey } from "@workspace/api-client-react";
+import { customFetch, useCreateProperty, useUpdateProperty, useGetProperty, getListPropertiesQueryKey } from "@workspace/api-client-react";
 import { useRoute, useLocation, Link } from "wouter";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -100,14 +100,11 @@ export default function PropertyForm() {
         const fd = new FormData();
         fd.append("file", file);
         
-        const response = await fetch("/api/upload", {
+        const result = await customFetch<{ url: string }>("/api/upload", {
           method: "POST",
           body: fd,
         });
-        
-        if (!response.ok) throw new Error("Upload failed");
-        
-        const result = await response.json();
+
         newUrls.push(result.url);
       }
       

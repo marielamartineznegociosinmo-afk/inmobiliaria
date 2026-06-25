@@ -3,7 +3,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
-import streamifier from "streamifier";
+import { Readable } from "stream";
 import { authMiddleware } from "../middlewares/auth";
 
 const router: IRouter = Router();
@@ -13,6 +13,11 @@ const CLOUDINARY_URL = process.env.CLOUDINARY_URL;
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
 const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
+
+type CloudinaryUploadResult = {
+  secure_url?: string;
+  url?: string;
+};
 
 const cloudinaryConfigured = Boolean(
   CLOUDINARY_URL ||
@@ -61,14 +66,16 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res): 
     return;
   }
 
+  const file = req.file;
+
   if (cloudinaryConfigured) {
-    if (!req.file.buffer) {
+    if (!file.buffer) {
       res.status(500).json({ error: "No se pudo leer el archivo para subirlo" });
       return;
     }
 
     try {
-      const uploadResult = await new Promise<cloudinary.UploadApiResponse>((resolve, reject) => {
+      const uploadResult = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           { folder: "asset-manager", resource_type: "auto" },
           (error, result) => {
@@ -78,7 +85,7 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res): 
           },
         );
 
-        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+        Readable.from(file.buffer).pipe(uploadStream);
       });
 
       res.json({ url: uploadResult.secure_url || uploadResult.url });
