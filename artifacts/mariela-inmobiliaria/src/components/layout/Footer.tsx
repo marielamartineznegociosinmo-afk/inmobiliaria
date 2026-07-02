@@ -10,7 +10,7 @@ export function Footer() {
             <Link href="/" className="inline-block mb-6">
               <div className="flex flex-col text-primary-foreground">
               <img
-              src="../../public/Logo-footer.png"
+              src="/Logo-footer.png"
               alt="Logo"
               className="h-15 w-60"
                 />
