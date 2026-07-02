@@ -61,9 +61,9 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-lg md:text-xl text-white/90 font-light max-w-2xl mx-auto leading-relaxed"
+              className="text-lg md:text-xl text-white/90 font-light max-w-2x2 mx-auto leading-relaxed"
             >
-              Compra, venta y alquiler de inmuebles en Paraná y la región. Atención personalizada en cada etapa del proceso.
+              Buscá casas, departamentos, terrenos y locales en Paraná y la región.
             </motion.p>
           </div>
 
@@ -112,8 +112,8 @@ export default function HomePage() {
                 className="h-12 bg-accent hover:bg-accent/90 text-accent-foreground text-base font-semibold"
                 data-testid="button-search"
               >
-                <Search className="w-5 h-5 mr-2" />
-                Buscar propiedades
+                <Search className="w-5 h-5 mr" />
+                Buscar
               </Button>
             </form>
           </motion.div>
@@ -129,7 +129,7 @@ export default function HomePage() {
                 Propiedades destacadas
               </h2>
               <p className="text-muted-foreground text-lg max-w-2xl">
-                Una selección de las oportunidades disponibles en Paraná y la región.
+                Una selección de las oportunidades disponibles.
               </p>
             </div>
             <Link href="/propiedades">
@@ -211,12 +211,12 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto bg-card border shadow-sm rounded-2xl p-8 md:p-16 text-center">
+          <div className="max-w-5xl mx-auto bg-card border shadow-sm rounded-2xl p-8 md:p-16 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4 tracking-tight">
               ¿Querés vender o alquilar tu propiedad?
             </h2>
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Hacemos tasaciones gratuitas en Paraná, Oro Verde, San Benito, Colonia Avellaneda y localidades cercanas. Te asesoramos para que tomes la mejor decisión.
+              Hacemos tasaciones en Paraná y localidades cercanas. <br/> Te asesoramos para que tomes la mejor decisión.
             </p>
             <Link href="/tasaciones">
               <Button
@@ -224,7 +224,7 @@ export default function HomePage() {
                 className="text-base font-semibold px-8 bg-accent text-accent-foreground hover:bg-accent/90"
                 data-testid="button-tasacion-cta"
               >
-                Solicitá tu tasación gratuita
+                Solicitá tu tasación
               </Button>
             </Link>
           </div>

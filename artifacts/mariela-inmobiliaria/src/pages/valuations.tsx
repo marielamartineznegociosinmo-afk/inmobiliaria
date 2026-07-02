@@ -30,8 +30,7 @@ export default function Valuations() {
             transition={{ delay: 0.15 }}
             className="text-xl text-primary-foreground/80 font-light leading-relaxed mb-10"
           >
-            Realizamos tasaciones gratuitas en Paraná, Oro Verde, San Benito, Colonia Avellaneda y localidades cercanas. Te asesoramos para que tomes la mejor decisión.
-          </motion.p>
+            Realizamos tasaciones en Paraná, Oro Verde, San Benito, Colonia Avellaneda y localidades cercanas. Analizamos tu propiedad, su ubicación y el mercado actual para brindarte una orientación clara y realista.          </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -44,10 +43,10 @@ export default function Valuations() {
                 data-testid="button-tasacion-hero"
               >
                 <MessageCircle className="w-6 h-6 mr-2" />
-                Solicitá tu tasación gratis
+                Solicitá tu tasación
               </Button>
             </a>
-            <p className="text-primary-foreground/60 text-sm mt-3">Por WhatsApp · Sin costo · Sin compromiso</p>
+            
           </motion.div>
         </div>
       </section>
@@ -62,19 +61,19 @@ export default function Valuations() {
                 icon: MessageCircle,
                 step: "1",
                 title: "Nos contactás",
-                desc: "Escribinos por WhatsApp con los datos de tu propiedad y coordinamos una visita."
+                desc: "Escribinos por WhatsApp con los datos principales de tu propiedad y coordinamos los pasos a seguir."
               },
               {
                 icon: MapPin,
                 step: "2",
-                title: "Visitamos la propiedad",
-                desc: "Recorremos el inmueble y evaluamos su estado, ubicación y características constructivas."
+                title: "Evaluamos la propiedad",
+                desc: "Relevamos la ubicación, el estado general, las características y la documentación disponible."
               },
               {
                 icon: Calculator,
                 step: "3",
                 title: "Análisis de mercado",
-                desc: "Comparamos con propiedades similares en la zona y te informamos el valor actual de mercado."
+                desc: "Comparamos con propiedades similares en la zona y analizamos el valor actual según el mercado."
               }
             ].map((item, i) => (
               <motion.div
@@ -105,18 +104,17 @@ export default function Valuations() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <ClipboardCheck className="w-12 h-12 text-primary mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-primary mb-4">¿Por qué es gratuita?</h2>
+            {/* <h2 className="text-2xl font-bold text-primary mb-4">¿Por qué es gratuita?</h2> */}
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Porque creemos que el primer paso para una buena operación es tener información real. No hay costos ni compromisos: si después decidís trabajar con nosotros, nos alegramos; si no, igual te fuiste con datos concretos.
-            </p>
+              Conocer el valor de una propiedad es un paso importante para tomar buenas decisiones. Por eso realizamos un análisis serio, con conocimiento del mercado local y una comunicación clara desde el primer momento.            </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
             {[
-              "Sin costo",
-              "Sin compromiso",
-              "Con conocimiento local"
+              "Análisis",
+              "Compromiso",
+              "Comunicación"
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 bg-card border rounded-xl px-5 py-4">
+              <div key={i} className="flex items-center justify-center gap-3 bg-card border rounded-xl px-5 py-4">
                 <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />
                 <span className="font-semibold text-foreground">{item}</span>
               </div>
@@ -126,7 +124,7 @@ export default function Valuations() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="py-24 bg-primary text-primary-foreground text-center">
+      {/*<section className="py-24 bg-primary text-primary-foreground text-center">
         <div className="container mx-auto px-4 max-w-2xl">
           <h2 className="text-3xl font-bold mb-4">¿Listo para dar el primer paso?</h2>
           <p className="text-primary-foreground/80 mb-8 text-lg">
@@ -144,6 +142,7 @@ export default function Valuations() {
           </a>
         </div>
       </section>
+      */}
     </PageTransition>
   );
 }
