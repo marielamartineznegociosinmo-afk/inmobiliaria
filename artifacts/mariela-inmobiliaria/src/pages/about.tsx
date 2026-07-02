@@ -1,5 +1,5 @@
 import { PageTransition } from "@/components/layout/PageTransition";
-import { CheckCircle2, Shield, HeartHandshake, MapPin } from "lucide-react";
+import { CheckCircle2, Shield, HeartHandshake, MapPinHouse, Users, User, HandshakeIcon, KeyRound, ClipboardList, BadgeInfo } from "lucide-react";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 
@@ -30,14 +30,15 @@ export default function About() {
               Una inmobiliaria familiar,{" "}
               <span className="text-accent">con conocimiento local</span>
             </motion.h1>
-            <motion.p
+            
+      {/* <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
               className="text-xl text-white/90 font-light leading-relaxed"
             >
               Compra, venta, alquiler y tasaciones en Paraná y la región. Atención personalizada y acompañamiento en cada etapa del proceso.
-            </motion.p>
+            </motion.p> */}
           </div>
         </div>
       </section>
@@ -50,13 +51,13 @@ export default function About() {
               <h2 className="text-3xl font-bold text-primary mb-6">Quiénes somos</h2>
               <div className="space-y-5 text-lg text-muted-foreground leading-relaxed">
                 <p>
-                  Mariela Martínez Negocios Inmobiliarios es una inmobiliaria familiar de Paraná que desarrolla su actividad desde 2020.
+                  Mariela Martínez Negocios Inmobiliarios es una inmobiliaria de Paraná que desarrolla su actividad desde 2020, dedicada a la tasación, alquiler, compra y venta de inmuebles urbanos y rurales.
                 </p>
                 <p>
-                  Trabajamos en Paraná, Oro Verde, San Benito, Colonia Avellaneda y localidades cercanas. Conocemos el mercado local, los barrios y las particularidades de cada zona.
+                  Nuestra experiencia en ventas nos permite ofrecer un trato personalizado, escuchando siempre las necesidades de cada cliente. Conocemos el mercado local, los barrios y las particularidades de cada zona.
                 </p>
                 <p>
-                  Creemos que comprar, vender o alquilar una propiedad es una decisión importante. Por eso acompañamos a cada cliente de manera directa, sin intermediarios, con comunicación clara y tiempos de respuesta reales.
+                  Sabemos que comprar o vender una propiedad es una decisión muy importante y trascendental. Por eso acompañamos a cada cliente con cordialidad, atención, sinceridad y una comunicación clara y transparente.
                 </p>
               </div>
             </div>
@@ -75,7 +76,7 @@ export default function About() {
       </section>
 
       {/* Zones */}
-      <section className="py-16 bg-muted/30">
+      {/* <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="flex items-start gap-4 max-w-3xl mx-auto">
             <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center shrink-0 mt-1">
@@ -89,14 +90,14 @@ export default function About() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Values */}
-      <section className="py-24 bg-background">
+      <section className="py-24 bg-primary">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold text-primary mb-4">Cómo trabajamos</h2>
-            <p className="text-muted-foreground text-lg">
+            <h2 className="text-3xl font-bold text-primary-foreground mb-4">Cómo trabajamos</h2>
+            <p className="text-primary-foreground/80 text-lg">
               Los principios que guían cada operación que realizamos.
             </p>
           </div>
@@ -106,7 +107,7 @@ export default function About() {
               {
                 icon: Shield,
                 title: "Transparencia",
-                desc: "Información clara en cada etapa. Sin letra chica, sin sorpresas."
+                desc: "Desde el primer momento brindamos información clara y concisa."
               },
               {
                 icon: HeartHandshake,
@@ -114,14 +115,14 @@ export default function About() {
                 desc: "Trabajamos directamente con cada cliente, sin derivaciones ni demoras."
               },
               {
-                icon: CheckCircle2,
+                icon: MapPinHouse,
                 title: "Conocimiento local",
-                desc: "Conocemos el mercado inmobiliario de Paraná y la región en profundidad."
+                desc: "Conocemos el mercado inmobiliario de Paraná y la zona en profundidad."
               },
               {
-                icon: CheckCircle2,
+                icon: Users,
                 title: "Acompañamiento",
-                desc: "Estamos en cada paso del proceso, desde la consulta hasta la firma."
+                desc: "Estamos en cada paso del proceso, desde la consulta hasta la finalización de la operación."
               }
             ].map((v, i) => (
               <motion.div
@@ -144,26 +145,26 @@ export default function About() {
       </section>
 
       {/* Services */}
-      <section className="py-24 bg-primary text-primary-foreground">
+      <section className="py-24 bg-background  text-primary">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-4 text-center">Nuestros servicios</h2>
-          <p className="text-center text-primary-foreground/70 mb-16 max-w-xl mx-auto">
-            Todo lo que necesitás para operar con seguridad en el mercado inmobiliario de Paraná.
+          <p className="text-center text-muted-foreground mb-16 max-w-xl mx-auto">
+            Todo lo que necesitás para operar con seguridad en el mercado.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { title: "Compra y venta", desc: "Acompañamos la operación completa, desde la búsqueda o publicación hasta la escritura." },
-              { title: "Alquileres", desc: "Gestión de contratos, búsqueda de inquilinos y asesoramiento para propietarios." },
-              { title: "Tasaciones", desc: "Análisis del valor de tu propiedad en el mercado actual de Paraná y la región." },
-              { title: "Asesoramiento", desc: "Consultas sobre el proceso inmobiliario, documentación y aspectos legales." },
-            ].map((s, i) => (
-              <div key={i} className="flex flex-col items-center text-center p-6">
-                <CheckCircle2 className="w-10 h-10 text-accent mb-4" />
-                <h3 className="text-xl font-bold mb-2">{s.title}</h3>
-                <p className="text-primary-foreground/75 leading-relaxed text-sm">{s.desc}</p>
-              </div>
-            ))}
-          </div>
+  {[
+    { icon: <HandshakeIcon className="w-10 h-10 text-accent mb-4" />, title: "Compra y venta", desc: "Te acompañamos desde el inicio de la operación hasta concretar el resultado que buscás, ya sea para vender, comprar o encontrar la propiedad adecuada." },
+    { icon: <KeyRound className="w-10 h-10 text-accent mb-4" />, title: "Alquileres", desc: "Te asesoramos en todo el proceso de alquiler, desde la búsqueda de inquilinos hasta la gestión del contrato y el acompañamiento a propietarios." },
+    { icon: <ClipboardList className="w-10 h-10 text-accent mb-4" />, title: "Tasaciones", desc: "Analizamos el valor de tu propiedad según el mercado actual, su ubicación, características y las condiciones de la zona." },
+    { icon: <BadgeInfo className="w-10 h-10 text-accent mb-4" />, title: "Asesoramiento inmobiliario", desc: "Te orientamos en cada etapa del proceso inmobiliario, con información clara sobre documentación, pasos a seguir y decisiones importantes." },
+  ].map((s, i) => (
+    <div key={i} className="flex flex-col items-center text-center p-6">
+      {s.icon}
+      <h3 className="text-xl font-bold mb-2">{s.title}</h3>
+      <p className="text-muted-foreground leading-relaxed text-sm">{s.desc}</p>
+    </div>
+  ))}
+</div>
         </div>
       </section>
     </PageTransition>

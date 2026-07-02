@@ -20,8 +20,14 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-primary leading-none">MARIELA MARTÍNEZ</span>
+              <img
+              src="../../public/Logo-Navbar.png"
+              alt="Logo"
+              className="h-15 w-60"
+            />
+            {/* <span className="text-xl font-bold tracking-tight text-primary leading-none">MARIELA MARTÍNEZ</span>
             <span className="text-[0.65rem] tracking-widest text-muted-foreground uppercase">NEGOCIOS INMOBILIARIOS</span>
+          */}
           </div>
         </Link>
 

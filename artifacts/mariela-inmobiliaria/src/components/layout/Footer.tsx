@@ -9,18 +9,21 @@ export function Footer() {
           <div className="col-span-1 md:col-span-1">
             <Link href="/" className="inline-block mb-6">
               <div className="flex flex-col text-primary-foreground">
-                <span className="text-xl font-bold tracking-tight leading-none">MARIELA MARTÍNEZ</span>
-                <span className="text-[0.65rem] tracking-widest opacity-80 uppercase">NEGOCIOS INMOBILIARIOS</span>
+              <img
+              src="../../public/Logo-footer.png"
+              alt="Logo"
+              className="h-15 w-60"
+                />
               </div>
             </Link>
             <p className="text-primary-foreground/80 text-sm leading-relaxed mb-6">
-              Inmobiliaria familiar en Paraná, Entre Ríos. Compra, venta, alquiler y tasaciones con atención personalizada desde 2020.
+              Compra, venta, alquiler y tasaciones con atención personalizada desde 2020.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors">
+              <a href="https://www.instagram.com/inmobiliaria.marielamartinez/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors">
+              <a href="https://www.facebook.com/INMOMARIELAMARTINEZ" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
             </div>
@@ -72,7 +75,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3 text-primary-foreground/80 text-sm">
                 <Mail className="w-5 h-5 shrink-0" />
-                <span>contacto@marielamartinez.com.ar</span>
+                <span>marielamartineznegociosinmo@gmail.com</span>
               </li>
             </ul>
           </div>
@@ -82,9 +85,11 @@ export function Footer() {
           <p className="text-primary-foreground/60 text-sm">
             &copy; {new Date().getFullYear()} Mariela Martínez Negocios Inmobiliarios. Todos los derechos reservados.
           </p>
+          {/*
           <p className="text-primary-foreground/60 text-sm">
             <Link href="/admin" className="hover:text-primary-foreground transition-colors">Acceso Admin</Link>
           </p>
+          */}
         </div>
       </div>
     </footer>

@@ -72,8 +72,8 @@ export default function PropertiesList() {
           <h1 className="text-4xl font-bold text-primary tracking-tight mb-4">
             Propiedades
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl">
-            Explorá nuestro catálogo de propiedades en venta y alquiler. Utilizá los filtros para encontrar tu lugar ideal.
+          <p className="text-muted-foreground text-lg max-w-2x2">
+            Explorá nuestro catálogo de propiedades, utilizá los filtros para encontrar tu lugar ideal.
           </p>
         </div>
       </div>

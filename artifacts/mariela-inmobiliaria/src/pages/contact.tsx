@@ -30,14 +30,14 @@ export default function Contact() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-card border rounded-2xl p-10 shadow-sm text-center"
+              className="bg-card border rounded-2xl p-20 shadow-sm text-center"
             >
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <MessageCircle className="w-8 h-8 text-green-600" />
               </div>
               <h2 className="text-2xl font-bold text-primary mb-3">Escribinos por WhatsApp</h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                Es la forma más rápida de comunicarte con nosotros. Respondemos en horario de atención y a la brevedad posible.
+                Contactanos y te responderemos lo antes posible.
               </p>
               <a href={WA_LINK} target="_blank" rel="noopener noreferrer">
                 <Button
@@ -46,10 +46,9 @@ export default function Contact() {
                   data-testid="button-whatsapp-contact"
                 >
                   <MessageCircle className="w-5 h-5 mr-2" />
-                  Escribir por WhatsApp
+                  Enviar WhatsApp
                 </Button>
               </a>
-              <p className="text-sm text-muted-foreground mt-4">+54 9 343 621-4375</p>
             </motion.div>
 
             {/* Secondary: Info */}
@@ -64,7 +63,7 @@ export default function Contact() {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Ubicación</h3>
                       <p className="text-muted-foreground">Paraná, Entre Ríos, Argentina</p>
-                      <p className="text-muted-foreground text-sm mt-1">Operamos en Paraná, Oro Verde, San Benito, Colonia Avellaneda y alrededores.</p>
+                      {/* <p className="text-muted-foreground text-sm mt-1">Operamos en Paraná, Oro Verde, San Benito, Colonia Avellaneda y alrededores.</p> */}
                     </div>
                   </div>
 
@@ -73,7 +72,7 @@ export default function Contact() {
                       <Phone className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground mb-1">Teléfono / WhatsApp</h3>
+                      <h3 className="font-semibold text-foreground mb-1">Teléfono</h3>
                       <a
                         href="tel:+5493436214375"
                         className="text-muted-foreground hover:text-primary transition-colors"
@@ -90,8 +89,8 @@ export default function Contact() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Horario de atención</h3>
-                      <p className="text-muted-foreground">Lunes a Viernes: 8:30 a 17:00 hs</p>
-                      <p className="text-muted-foreground">Sábados: con cita previa</p>
+                      <p className="text-muted-foreground">Lunes a Viernes: 9:30 a 20:00 hs</p>
+                      <p className="text-muted-foreground">Sábados: 9:30 a 12:30 hs</p>
                     </div>
                   </div>
                 </div>
@@ -101,18 +100,22 @@ export default function Contact() {
                 <h3 className="text-lg font-bold text-primary mb-4">Seguinos en redes</h3>
                 <div className="flex gap-4">
                   <a
-                    href="#"
+                    href="https://www.instagram.com/inmobiliaria.marielamartinez/"
                     aria-label="Instagram"
                     className="w-11 h-11 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
                     data-testid="link-instagram"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <Instagram className="w-5 h-5" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.facebook.com/INMOMARIELAMARTINEZ"
                     aria-label="Facebook"
                     className="w-11 h-11 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
                     data-testid="link-facebook"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <Facebook className="w-5 h-5" />
                   </a>
