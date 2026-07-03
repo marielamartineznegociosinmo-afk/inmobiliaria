@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, PlusCircle, LogOut, Settings } from "lucide-react";
+import { LayoutDashboard, PlusCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { PageTransition } from "@/components/layout/PageTransition";
@@ -8,15 +8,27 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
+function isJwtExpired(token: string): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof payload.exp === "number" && Date.now() >= payload.exp * 1000;
+  } catch {
+    return false;
+  }
+}
+
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [location, setLocation] = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem('admin_token');
-    if (!token) {
+    if (!token || isJwtExpired(token)) {
+      localStorage.removeItem('admin_token');
       setLocation("/admin/login");
     }
-  }, [location, setLocation]);
+  }, [setLocation]);
 
   const handleLogout = () => {
     localStorage.removeItem('admin_token');
