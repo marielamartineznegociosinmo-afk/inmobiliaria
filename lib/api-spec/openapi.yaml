@@ -306,6 +306,8 @@ components:
           type: string
         address:
           type: string
+        coordinates:
+          type: string
         city:
           type: string
         bedrooms:
@@ -366,6 +368,8 @@ components:
           type: string
         address:
           type: string
+        coordinates:
+          type: string
         city:
           type: string
         bedrooms:
@@ -414,6 +418,8 @@ components:
         neighborhood:
           type: string
         address:
+          type: string
+        coordinates:
           type: string
         city:
           type: string

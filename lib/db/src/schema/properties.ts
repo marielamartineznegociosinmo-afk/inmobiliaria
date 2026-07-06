@@ -12,6 +12,7 @@ export const propertiesTable = pgTable("properties", {
   currency: text("currency").notNull().default("USD"),
   neighborhood: text("neighborhood").notNull(),
   address: text("address").notNull(),
+  coordinates: text("coordinates"),
   city: text("city").notNull().default("Paraná"),
   bedrooms: integer("bedrooms"),
   bathrooms: integer("bathrooms"),

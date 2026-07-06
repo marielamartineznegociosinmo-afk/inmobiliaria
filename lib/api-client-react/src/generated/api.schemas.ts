@@ -108,6 +108,7 @@ export interface PropertyInput {
   currency: PropertyInputCurrency;
   neighborhood: string;
   address: string;
+  coordinates?: string;
   city: string;
   bedrooms?: number;
   bathrooms?: number;
@@ -159,6 +160,7 @@ export interface PropertyUpdate {
   currency?: PropertyUpdateCurrency;
   neighborhood?: string;
   address?: string;
+  coordinates?: string;
   city?: string;
   bedrooms?: number;
   bathrooms?: number;

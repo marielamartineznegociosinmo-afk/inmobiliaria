@@ -8,6 +8,12 @@ import { useRoute, Link } from "wouter";
 import { useEffect, useState } from "react";
 import { MapPin, Bed, Bath, Maximize2, Calendar, Car, Home, ArrowLeft, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import L from "leaflet";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import "leaflet/dist/leaflet.css";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 
 export default function PropertyDetail() {
@@ -80,6 +86,34 @@ export default function PropertyDetail() {
   ].filter(s => s.value != null);
 
   const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.title} (ID: ${property.id})`;
+
+  const parseCoordinates = (value?: string | null) => {
+    if (!value) return null;
+
+    const normalized = value.replace(/\s+/g, "").trim();
+    if (!normalized) return null;
+
+    const match = normalized.match(/^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/);
+    if (!match) return null;
+
+    const lat = Number(match[1]);
+    const lng = Number(match[2]);
+
+    if ([lat, lng].some((coord) => Number.isNaN(coord))) return null;
+
+    return { lat, lng };
+  };
+
+  const coordinates = parseCoordinates(property.coordinates);
+  const propertyMarkerIcon = L.icon({
+    iconUrl: markerIcon,
+    iconRetinaUrl: markerIcon2x,
+    shadowUrl: markerShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
+  });
 
   return (
     <PageTransition className="bg-background pb-24">
@@ -247,14 +281,39 @@ export default function PropertyDetail() {
 
               <div className="mt-8 pt-6 border-t">
                 <h3 className="font-bold text-foreground mb-4">Ubicación aproximada</h3>
-                <div className="aspect-video bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-[url('https://api.maptiler.com/maps/basic-v2/static/-60.5288,-31.733,13/600x400.png?key=get_your_own_key')] opacity-50 bg-cover bg-center"></div>
-                  <div className="relative z-10 flex flex-col items-center bg-background/90 p-4 rounded-xl backdrop-blur-sm border shadow-sm">
-                    <MapPin className="w-8 h-8 text-primary mb-2" />
-                    <p className="font-semibold text-center">{property.neighborhood}</p>
-                    <p className="text-sm text-muted-foreground text-center">{property.city}</p>
+                {coordinates ? (
+                  <div className="aspect-video w-full overflow-hidden rounded-xl border bg-muted">
+                    <MapContainer
+                      center={[coordinates.lat, coordinates.lng]}
+                      zoom={15}
+                      scrollWheelZoom={false}
+                      className="h-full w-full"
+                    >
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution="© OpenStreetMap contributors"
+                      />
+                      <Marker position={[coordinates.lat, coordinates.lng]} icon={propertyMarkerIcon}>
+                        <Popup>
+                          <div className="text-sm">
+                            <p className="font-semibold">{property.neighborhood}</p>
+                            <p className="text-muted-foreground">{property.city}</p>
+                          </div>
+                        </Popup>
+                      </Marker>
+                    </MapContainer>
                   </div>
-                </div>
+                ) : (
+                  <div className="aspect-video bg-muted rounded-xl flex flex-col items-center justify-center relative overflow-hidden border">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <div className="relative z-10 flex flex-col items-center bg-background/90 p-4 rounded-xl backdrop-blur-sm border shadow-sm max-w-[85%] text-center">
+                      <MapPin className="w-8 h-8 text-primary mb-2" />
+                      <p className="font-semibold text-center">{property.neighborhood}</p>
+                      <p className="text-sm text-muted-foreground text-center">{property.city}</p>
+                      <p className="text-xs text-muted-foreground mt-3">La propiedad aún no tiene definida una ubicación exacta.</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

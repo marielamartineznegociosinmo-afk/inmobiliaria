@@ -31,7 +31,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "./uploads";
+const FRONTEND_DIST = path.resolve(__dirname, "../../mariela-inmobiliaria/dist/public");
+
 app.use("/api/uploads", express.static(path.resolve(UPLOAD_DIR)));
+app.use(express.static(FRONTEND_DIST));
+
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api") || req.path.includes(".")) {
+    return next();
+  }
+
+  res.sendFile(path.join(FRONTEND_DIST, "index.html"));
+});
 
 app.use("/api", router);
 

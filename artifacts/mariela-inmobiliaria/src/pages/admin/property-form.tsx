@@ -41,6 +41,7 @@ export default function PropertyForm() {
     currency: "USD" as any,
     neighborhood: "",
     address: "",
+    coordinates: "",
     city: "Paraná",
     bedrooms: "",
     bathrooms: "",
@@ -68,6 +69,7 @@ export default function PropertyForm() {
         currency: property.currency as any,
         neighborhood: property.neighborhood || "",
         address: property.address || "",
+        coordinates: property.coordinates || "",
         city: property.city || "Paraná",
         bedrooms: property.bedrooms?.toString() || "",
         bathrooms: property.bathrooms?.toString() || "",
@@ -156,6 +158,7 @@ export default function PropertyForm() {
       coveredArea: formData.coveredArea ? Number(formData.coveredArea) : undefined,
       totalArea: formData.totalArea ? Number(formData.totalArea) : undefined,
       age: formData.age ? Number(formData.age) : undefined,
+      coordinates: formData.coordinates?.trim() || undefined,
       price: Number(formData.price),
     };
 
@@ -318,6 +321,16 @@ export default function PropertyForm() {
                       onChange={e => handleInputChange("address", e.target.value)} 
                       required 
                     />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="coordinates">Coordenadas</Label>
+                    <Input 
+                      id="coordinates" 
+                      value={formData.coordinates} 
+                      onChange={e => handleInputChange("coordinates", e.target.value)} 
+                      placeholder="-31.7330, -60.5288"
+                    />
+                    <p className="text-sm text-muted-foreground">Opcional. Formato: latitud, longitud (ej: -31.7330, -60.5288)</p>
                   </div>
                 </div>
               </CardContent>

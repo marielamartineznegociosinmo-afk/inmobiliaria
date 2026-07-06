@@ -20,6 +20,7 @@ export interface Property {
   currency: PropertyCurrency;
   neighborhood: string;
   address: string;
+  coordinates?: string | null;
   city: string;
   /** @nullable */
   bedrooms?: number | null;

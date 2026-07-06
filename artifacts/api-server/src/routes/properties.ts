@@ -174,6 +174,7 @@ router.delete("/properties/:id", authMiddleware, async (req, res): Promise<void>
 function serializeProperty(row: typeof propertiesTable.$inferSelect) {
   return {
     ...row,
+    coordinates: row.coordinates ?? null,
     type: row.type.toLowerCase(),
     operation: row.operation.toLowerCase(),
     photos: row.photos ?? [],
