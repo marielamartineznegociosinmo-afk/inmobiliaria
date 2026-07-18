@@ -370,7 +370,11 @@ export async function customFetch<T = unknown>(
   if (!response.ok) {
     const errorData = await parseErrorBody(response, method);
 
-    if (response.status === 401 && _unauthorizedHandler) {
+    // Only treat this as a session/token problem when the request was actually
+    // authenticated. Otherwise a 401 from e.g. a login attempt with wrong
+    // credentials would wipe the stored token and force a redirect, even
+    // though there was no session to invalidate.
+    if (response.status === 401 && headers.has("authorization") && _unauthorizedHandler) {
       try {
         _unauthorizedHandler();
       } catch {
