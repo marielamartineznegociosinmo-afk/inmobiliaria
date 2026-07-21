@@ -16,9 +16,6 @@ export function Footer() {
                 />
               </div>
             </Link>
-            <p className="text-primary-foreground/80 text-sm leading-relaxed mb-6">
-              Compra, venta, alquiler y tasaciones con atención personalizada desde 2020.
-            </p>
             <div className="flex gap-4">
               <a href="https://www.instagram.com/inmobiliaria.marielamartinez/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors">
                 <Instagram className="w-5 h-5" />

@@ -75,8 +75,10 @@ export default function PropertyDetail() {
     { icon: <Maximize2 className="w-5 h-5 text-muted-foreground" />, label: "Sup. Cubierta", value: property.coveredArea ? `${property.coveredArea} m²` : null },
     { icon: <Maximize2 className="w-5 h-5 text-muted-foreground" />, label: "Sup. Total", value: property.totalArea ? `${property.totalArea} m²` : null },
     { icon: <Car className="w-5 h-5 text-muted-foreground" />, label: "Cochera", value: property.garage ? "Sí" : "No" },
-    { icon: <Calendar className="w-5 h-5 text-muted-foreground" />, label: "Antigüedad", value: property.age ? `${property.age} años` : "A estrenar" },
     { icon: <Home className="w-5 h-5 text-muted-foreground" />, label: "Tipo", value: property.type },
+    {/*
+    { icon: <Calendar className="w-5 h-5 text-muted-foreground" />, label: "Antigüedad", value: property.age ? `${property.age} años` : "A estrenar" },
+      */}
   ].filter(s => s.value != null);
 
   const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.title} (ID: ${property.id})`;
@@ -238,11 +240,11 @@ export default function PropertyDetail() {
                 >
                   Consultar por WhatsApp
                 </Button>
-                <Link href="/contacto">
+                {/* <Link href="/contacto">
                   <Button variant="outline" className="w-full h-14 text-lg font-semibold border-primary text-primary hover:bg-primary/5">
                     Dejar un mensaje
                   </Button>
-                </Link>
+                </Link>*/}
               </div>
 
               <div className="mt-8 pt-6 border-t">
