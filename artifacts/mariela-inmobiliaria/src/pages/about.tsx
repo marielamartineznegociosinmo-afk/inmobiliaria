@@ -32,7 +32,7 @@ export default function About() {
             <div className="relative">
               <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-xl relative z-10">
                 <img
-                  src="/public/about-us-image.png"
+                  src="/about-us-image.png"
                   alt="Mariela Martínez"
                   className="w-full h-full object-cover"
                 />
