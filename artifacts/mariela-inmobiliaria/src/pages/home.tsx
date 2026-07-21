@@ -37,14 +37,18 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center pt-20 pb-32">
         <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-            alt="Propiedad en Paraná"
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
             className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-primary/80 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent"></div>
-        </div>
+          >
+          <source src="/HERO-HOME-compress.mp4" type="video/mp4" />
+          </video>
+            <div className="absolute inset-0 bg-primary/80 mix-blend-multiply"></div>
+            <div className="absolute inset-0 bg-gradient-to- from-background via-background/20 to-transparent"></div>
+</div>
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center mb-12">
@@ -63,7 +67,7 @@ export default function HomePage() {
               transition={{ delay: 0.2 }}
               className="text-lg md:text-xl text-white/90 font-light max-w-2x2 mx-auto leading-relaxed"
             >
-              Buscá casas, departamentos, terrenos y locales en Paraná y la región.
+              Comprá o alquilá casas, departamentos, terrenos, locales y cocheras con atención personalizada y conocimiento del mercado local.
             </motion.p>
           </div>
 
@@ -112,7 +116,7 @@ export default function HomePage() {
                 className="h-12 bg-accent hover:bg-accent/90 text-accent-foreground text-base font-semibold"
                 data-testid="button-search"
               >
-                <Search className="w-5 h-5 mr" />
+                <Search className="w-5 h-5 mr-2" />
                 Buscar
               </Button>
             </form>
@@ -128,11 +132,11 @@ export default function HomePage() {
               <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4 tracking-tight">
                 Propiedades destacadas
               </h2>
-              <p className="text-muted-foreground text-lg max-w-2xl">
+              {/*<p className="text-muted-foreground text-lg max-w-2xl">
                 Una selección de las oportunidades disponibles.
-              </p>
+              </p>*/}
             </div>
-            <Link href="/propiedades">
+            {/*<Link href="/propiedades">
               <Button
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold"
@@ -140,7 +144,7 @@ export default function HomePage() {
               >
                 Ver todas las propiedades
               </Button>
-            </Link>
+            </Link> */}
           </div>
 
           {isFeaturedLoading ? (

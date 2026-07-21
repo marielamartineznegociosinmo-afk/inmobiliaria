@@ -10,38 +10,6 @@ export default function About() {
 
   return (
     <PageTransition>
-      {/* Hero */}
-      <section className="relative min-h-[45vh] flex items-center py-20">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-            alt="Paraná, Entre Ríos"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-primary/90 mix-blend-multiply"></div>
-        </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
-            >
-              Una inmobiliaria familiar,{" "}
-              <span className="text-accent">con conocimiento local</span>
-            </motion.h1>
-            
-      {/* <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="text-xl text-white/90 font-light leading-relaxed"
-            >
-              Compra, venta, alquiler y tasaciones en Paraná y la región. Atención personalizada y acompañamiento en cada etapa del proceso.
-            </motion.p> */}
-          </div>
-        </div>
-      </section>
 
       {/* Story */}
       <section className="py-24 bg-background">
@@ -64,7 +32,7 @@ export default function About() {
             <div className="relative">
               <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-xl relative z-10">
                 <img
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                  src="/public/about-us-image.png"
                   alt="Mariela Martínez"
                   className="w-full h-full object-cover"
                 />
