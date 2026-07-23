@@ -49,8 +49,12 @@ function Router() {
       {/* Admin Routes (No public layout) */}
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/propiedades/nueva" component={PropertyForm} />
-      <Route path="/admin/propiedades/:id/editar" component={PropertyForm} />
+      <Route path="/admin/propiedades/nueva">
+        <PropertyForm key="nueva" />
+      </Route>
+      <Route path="/admin/propiedades/:id/editar">
+        {(params) => <PropertyForm key={params.id} />}
+      </Route>
 
       {/* Public Routes */}
       <Route path="/">

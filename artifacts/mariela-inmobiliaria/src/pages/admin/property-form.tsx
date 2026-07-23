@@ -6,83 +6,91 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { customFetch, useCreateProperty, useUpdateProperty, useGetProperty, getListPropertiesQueryKey } from "@workspace/api-client-react";
+import { customFetch, useCreateProperty, useUpdateProperty, useGetProperty, getListPropertiesQueryKey, type Property } from "@workspace/api-client-react";
 import { useRoute, useLocation, Link } from "wouter";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Upload, X } from "lucide-react";
+
+const OPERATION_LABELS: Record<string, string> = {
+  venta: "Venta",
+  alquiler: "Alquiler",
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  casa: "Casa",
+  departamento: "Departamento",
+  terreno: "Terreno",
+  local: "Local",
+  oficina: "Oficina",
+  campo: "Campo",
+};
+
+const CURRENCY_LABELS: Record<string, string> = {
+  USD: "USD",
+  ARS: "ARS",
+};
+
+function buildFormData(property?: Property) {
+  return {
+    title: property?.title || "",
+    description: property?.description || "",
+    type: (property?.type ?? "casa") as any,
+    operation: (property?.operation ?? "venta") as any,
+    price: property?.price || 0,
+    currency: (property?.currency ?? "USD") as any,
+    neighborhood: property?.neighborhood || "",
+    address: property?.address || "",
+    city: property?.city || "Paraná",
+    bedrooms: property?.bedrooms?.toString() || "",
+    bathrooms: property?.bathrooms?.toString() || "",
+    coveredArea: property?.coveredArea?.toString() || "",
+    totalArea: property?.totalArea?.toString() || "",
+    garage: property?.garage || false,
+    age: property?.age?.toString() || "",
+    additionalFeatures: property?.additionalFeatures || "",
+    photos: (property?.photos || []) as string[],
+    coverPhoto: property?.coverPhoto || "",
+    featured: property?.featured || false,
+    active: property?.active ?? true,
+  };
+}
 
 export default function PropertyForm() {
   const [, params] = useRoute("/admin/propiedades/:id/editar");
   const isEditing = !!params?.id;
   const id = Number(params?.id);
-  
-  const [location, setLocation] = useLocation();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const { data: property, isLoading: isPropertyLoading } = useGetProperty(id, {
-   query: { 
-      queryKey: ['property', id], // O la estructura de key que use tu proyecto
-      enabled: isEditing 
+   query: {
+      queryKey: ['property', id],
+      enabled: isEditing
   }
   });
+
+  if (isEditing && isPropertyLoading) {
+    return <AdminLayout><div className="p-8">Cargando...</div></AdminLayout>;
+  }
+
+  // Mounting the fields only once the real property data (or "nueva") is
+  // known means formData is born already correct — no effect-driven sync
+  // that could race with it (Radix's Select, in particular, can end up
+  // resetting its value to "" if the controlled value changes shortly
+  // after mount instead of being correct from the first render).
+  return <PropertyFormFields isEditing={isEditing} id={id} property={property} />;
+}
+
+function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; id: number; property?: Property }) {
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const createMutation = useCreateProperty();
   const updateMutation = useUpdateProperty();
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    type: "casa" as any,
-    operation: "venta" as any,
-    price: 0,
-    currency: "USD" as any,
-    neighborhood: "",
-    address: "",
-    city: "Paraná",
-    bedrooms: "",
-    bathrooms: "",
-    coveredArea: "",
-    totalArea: "",
-    garage: false,
-    age: "",
-    additionalFeatures: "",
-    photos: [] as string[],
-    coverPhoto: "",
-    featured: false,
-    active: true,
-  });
-
+  const [formData, setFormData] = useState(() => buildFormData(property));
   const [uploadingFiles, setUploadingFiles] = useState(false);
-
-  useEffect(() => {
-    if (isEditing && property) {
-      setFormData({
-        title: property.title || "",
-        description: property.description || "",
-        type: property.type as any,
-        operation: property.operation as any,
-        price: property.price || 0,
-        currency: property.currency as any,
-        neighborhood: property.neighborhood || "",
-        address: property.address || "",
-        city: property.city || "Paraná",
-        bedrooms: property.bedrooms?.toString() || "",
-        bathrooms: property.bathrooms?.toString() || "",
-        coveredArea: property.coveredArea?.toString() || "",
-        totalArea: property.totalArea?.toString() || "",
-        garage: property.garage || false,
-        age: property.age?.toString() || "",
-        additionalFeatures: property.additionalFeatures || "",
-        photos: property.photos || [],
-        coverPhoto: property.coverPhoto || "",
-        featured: property.featured || false,
-        active: property.active ?? true,
-      });
-    }
-  }, [isEditing, property]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -186,10 +194,6 @@ export default function PropertyForm() {
     }
   };
 
-  if (isEditing && isPropertyLoading) {
-    return <AdminLayout><div className="p-8">Cargando...</div></AdminLayout>;
-  }
-
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
@@ -239,7 +243,7 @@ export default function PropertyForm() {
                   <div className="space-y-2">
                     <Label htmlFor="operation">Operación <span className="text-destructive">*</span></Label>
                     <Select value={formData.operation} onValueChange={v => handleInputChange("operation", v)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger><SelectValue>{OPERATION_LABELS[formData.operation]}</SelectValue></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="venta">Venta</SelectItem>
                         <SelectItem value="alquiler">Alquiler</SelectItem>
@@ -249,7 +253,7 @@ export default function PropertyForm() {
                   <div className="space-y-2">
                     <Label htmlFor="type">Tipo de Inmueble <span className="text-destructive">*</span></Label>
                     <Select value={formData.type} onValueChange={v => handleInputChange("type", v)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger><SelectValue>{TYPE_LABELS[formData.type]}</SelectValue></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="casa">Casa</SelectItem>
                         <SelectItem value="departamento">Departamento</SelectItem>
@@ -277,7 +281,7 @@ export default function PropertyForm() {
                   <div className="space-y-2">
                     <Label htmlFor="currency">Moneda <span className="text-destructive">*</span></Label>
                     <Select value={formData.currency} onValueChange={v => handleInputChange("currency", v)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger><SelectValue>{CURRENCY_LABELS[formData.currency]}</SelectValue></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="USD">USD</SelectItem>
                         <SelectItem value="ARS">ARS</SelectItem>

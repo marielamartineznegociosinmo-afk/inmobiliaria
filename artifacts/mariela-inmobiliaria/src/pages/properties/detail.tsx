@@ -250,7 +250,6 @@ export default function PropertyDetail() {
               <div className="mt-8 pt-6 border-t">
                 <h3 className="font-bold text-foreground mb-4">Ubicación aproximada</h3>
                 <div className="aspect-video bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-[url('https://api.maptiler.com/maps/basic-v2/static/-60.5288,-31.733,13/600x400.png?key=get_your_own_key')] opacity-50 bg-cover bg-center"></div>
                   <div className="relative z-10 flex flex-col items-center bg-background/90 p-4 rounded-xl backdrop-blur-sm border shadow-sm">
                     <MapPin className="w-8 h-8 text-primary mb-2" />
                     <p className="font-semibold text-center">{property.neighborhood}</p>
