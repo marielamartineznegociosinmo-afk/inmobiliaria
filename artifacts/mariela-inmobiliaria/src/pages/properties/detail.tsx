@@ -75,7 +75,7 @@ export default function PropertyDetail() {
     { icon: <Maximize2 className="w-5 h-5 text-muted-foreground" />, label: "Sup. Cubierta", value: property.coveredArea ? `${property.coveredArea} m²` : null },
     { icon: <Maximize2 className="w-5 h-5 text-muted-foreground" />, label: "Sup. Total", value: property.totalArea ? `${property.totalArea} m²` : null },
     { icon: <Car className="w-5 h-5 text-muted-foreground" />, label: "Cochera", value: property.garage ? "Sí" : "No" },
-    { icon: <Home className="w-5 h-5 text-muted-foreground" />, label: "Tipo", value: property.type },
+    { icon: <Home className="w-5 h-5 text-muted-foreground" />, label: "Tipo", value: property.type.charAt(0).toUpperCase() + property.type.slice(1) },
     {/*
     { icon: <Calendar className="w-5 h-5 text-muted-foreground" />, label: "Antigüedad", value: property.age ? `${property.age} años` : "A estrenar" },
       */}
@@ -175,7 +175,7 @@ export default function PropertyDetail() {
                 <Badge className={property.operation === "venta" ? "bg-primary" : "bg-accent text-accent-foreground"}>
                   {property.operation.toUpperCase()}
                 </Badge>
-                <Badge variant="outline" className="bg-background">{property.type}</Badge>
+                <Badge variant="outline" className="bg-background">{property.type.charAt(0).toUpperCase() + property.type.slice(1)}</Badge>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4 leading-tight">{property.title}</h1>
               <div className="flex items-center text-muted-foreground text-lg">
