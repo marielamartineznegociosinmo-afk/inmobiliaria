@@ -13,6 +13,8 @@ export interface Property {
   id: number;
   title: string;
   /** @nullable */
+  propertyCode?: string | null;
+  /** @nullable */
   description?: string | null;
   type: PropertyType;
   operation: PropertyOperation;

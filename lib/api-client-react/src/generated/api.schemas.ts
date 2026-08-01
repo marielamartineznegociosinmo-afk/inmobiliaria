@@ -41,6 +41,8 @@ export interface Property {
   id: number;
   title: string;
   /** @nullable */
+  propertyCode?: string | null;
+  /** @nullable */
   description?: string | null;
   type: PropertyType;
   operation: PropertyOperation;
@@ -101,6 +103,7 @@ export const PropertyInputCurrency = {
 
 export interface PropertyInput {
   title: string;
+  propertyCode?: string;
   description?: string;
   type: PropertyInputType;
   operation: PropertyInputOperation;
@@ -152,6 +155,7 @@ export const PropertyUpdateCurrency = {
 
 export interface PropertyUpdate {
   title?: string;
+  propertyCode?: string;
   description?: string;
   type?: PropertyUpdateType;
   operation?: PropertyUpdateOperation;

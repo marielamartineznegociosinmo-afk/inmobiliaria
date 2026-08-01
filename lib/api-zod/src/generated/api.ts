@@ -35,6 +35,7 @@ export const ListPropertiesQueryParams = zod.object({
 export const ListPropertiesResponseItem = zod.object({
   "id": zod.number(),
   "title": zod.string(),
+  "propertyCode": zod.string().nullish(),
   "description": zod.string().nullish(),
   "type": zod.enum(['casa', 'departamento', 'terreno', 'local', 'oficina', 'campo']),
   "operation": zod.enum(['venta', 'alquiler']),
@@ -64,6 +65,7 @@ export const ListPropertiesResponse = zod.array(ListPropertiesResponseItem)
  */
 export const CreatePropertyBody = zod.object({
   "title": zod.string(),
+  "propertyCode": zod.string().optional(),
   "description": zod.string().optional(),
   "type": zod.enum(['casa', 'departamento', 'terreno', 'local', 'oficina', 'campo']),
   "operation": zod.enum(['venta', 'alquiler']),
@@ -92,6 +94,7 @@ export const CreatePropertyBody = zod.object({
 export const GetFeaturedPropertiesResponseItem = zod.object({
   "id": zod.number(),
   "title": zod.string(),
+  "propertyCode": zod.string().nullish(),
   "description": zod.string().nullish(),
   "type": zod.enum(['casa', 'departamento', 'terreno', 'local', 'oficina', 'campo']),
   "operation": zod.enum(['venta', 'alquiler']),
@@ -140,6 +143,7 @@ export const GetPropertyParams = zod.object({
 export const GetPropertyResponse = zod.object({
   "id": zod.number(),
   "title": zod.string(),
+  "propertyCode": zod.string().nullish(),
   "description": zod.string().nullish(),
   "type": zod.enum(['casa', 'departamento', 'terreno', 'local', 'oficina', 'campo']),
   "operation": zod.enum(['venta', 'alquiler']),
@@ -172,6 +176,7 @@ export const UpdatePropertyParams = zod.object({
 
 export const UpdatePropertyBody = zod.object({
   "title": zod.string().optional(),
+  "propertyCode": zod.string().optional(),
   "description": zod.string().optional(),
   "type": zod.enum(['casa', 'departamento', 'terreno', 'local', 'oficina', 'campo']).optional(),
   "operation": zod.enum(['venta', 'alquiler']).optional(),
@@ -196,6 +201,7 @@ export const UpdatePropertyBody = zod.object({
 export const UpdatePropertyResponse = zod.object({
   "id": zod.number(),
   "title": zod.string(),
+  "propertyCode": zod.string().nullish(),
   "description": zod.string().nullish(),
   "type": zod.enum(['casa', 'departamento', 'terreno', 'local', 'oficina', 'campo']),
   "operation": zod.enum(['venta', 'alquiler']),
@@ -241,6 +247,7 @@ export const GetRelatedPropertiesParams = zod.object({
 export const GetRelatedPropertiesResponseItem = zod.object({
   "id": zod.number(),
   "title": zod.string(),
+  "propertyCode": zod.string().nullish(),
   "description": zod.string().nullish(),
   "type": zod.enum(['casa', 'departamento', 'terreno', 'local', 'oficina', 'campo']),
   "operation": zod.enum(['venta', 'alquiler']),

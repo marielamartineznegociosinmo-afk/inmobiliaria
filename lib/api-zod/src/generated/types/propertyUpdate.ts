@@ -11,6 +11,7 @@ import type { PropertyUpdateType } from './propertyUpdateType';
 
 export interface PropertyUpdate {
   title?: string;
+  propertyCode?: string;
   description?: string;
   type?: PropertyUpdateType;
   operation?: PropertyUpdateOperation;

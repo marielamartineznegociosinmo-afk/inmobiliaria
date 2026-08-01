@@ -11,6 +11,7 @@ import type { PropertyInputType } from './propertyInputType';
 
 export interface PropertyInput {
   title: string;
+  propertyCode?: string;
   description?: string;
   type: PropertyInputType;
   operation: PropertyInputOperation;
