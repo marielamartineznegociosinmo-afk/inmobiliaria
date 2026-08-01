@@ -43,7 +43,7 @@ export function PropertyCard({ property }: { property: Property }) {
         </div>
         <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
           <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm text-foreground font-semibold px-3 py-1.5 shadow-sm">
-            {property.type}
+            {property.type.charAt(0).toUpperCase() + property.type.slice(1)}
           </Badge>
         </div>
       </Link>
