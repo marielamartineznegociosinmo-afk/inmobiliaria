@@ -289,6 +289,8 @@ components:
           type: integer
         title:
           type: string
+        propertyCode:
+          type: ["string", "null"]
         description:
           type: ["string", "null"]
         type:
@@ -349,6 +351,8 @@ components:
       properties:
         title:
           type: string
+        propertyCode:
+          type: string
         description:
           type: string
         type:
@@ -397,6 +401,8 @@ components:
       type: object
       properties:
         title:
+          type: string
+        propertyCode:
           type: string
         description:
           type: string

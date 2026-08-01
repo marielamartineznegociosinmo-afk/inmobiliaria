@@ -35,6 +35,7 @@ const CURRENCY_LABELS: Record<string, string> = {
 function buildFormData(property?: Property) {
   return {
     title: property?.title || "",
+    propertyCode: property?.propertyCode || "",
     description: property?.description || "",
     type: (property?.type ?? "casa") as any,
     operation: (property?.operation ?? "venta") as any,
@@ -165,6 +166,7 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
       totalArea: formData.totalArea ? Number(formData.totalArea) : undefined,
       age: formData.age ? Number(formData.age) : undefined,
       price: Number(formData.price),
+      propertyCode: formData.propertyCode || undefined,
     };
 
     if (isEditing) {
@@ -224,6 +226,16 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                     onChange={e => handleInputChange("title", e.target.value)} 
                     required 
                     placeholder="Ej. Excelente Casa en Barrio Urquiza"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="propertyCode" className="text-base font-semibold">Código de propiedad</Label>
+                  <Input 
+                    id="propertyCode" 
+                    value={formData.propertyCode} 
+                    onChange={e => handleInputChange("propertyCode", e.target.value)} 
+                    placeholder="Ej. MZ-1234"
                   />
                 </div>
 

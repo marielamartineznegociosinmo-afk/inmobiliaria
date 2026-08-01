@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const filteredProperties = properties?.filter(p => 
     p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
     p.neighborhood.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.propertyCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.id.toString() === searchTerm
   );
 
@@ -68,7 +69,7 @@ export default function AdminDashboard() {
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
-              placeholder="Buscar por título, barrio o ID..." 
+              placeholder="Buscar por título, barrio, código o ID..." 
               className="pl-9"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -84,6 +85,7 @@ export default function AdminDashboard() {
               <TableHeader className="bg-muted/50">
                 <TableRow>
                   <TableHead className="w-[80px]">ID</TableHead>
+                  <TableHead className="w-[160px]">Código</TableHead>
                   <TableHead>Título</TableHead>
                   <TableHead>Operación</TableHead>
                   <TableHead>Tipo</TableHead>
@@ -96,6 +98,7 @@ export default function AdminDashboard() {
                 {filteredProperties.map((property) => (
                   <TableRow key={property.id}>
                     <TableCell className="font-medium text-muted-foreground">#{property.id}</TableCell>
+                    <TableCell className="font-medium">{property.propertyCode || "-"}</TableCell>
                     <TableCell>
                       <div className="font-medium">{property.title}</div>
                       <div className="text-xs text-muted-foreground">{property.neighborhood}, {property.city}</div>
