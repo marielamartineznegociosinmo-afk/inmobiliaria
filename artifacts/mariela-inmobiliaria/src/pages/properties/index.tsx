@@ -30,6 +30,24 @@ export default function PropertiesList() {
     document.title = "Propiedades | Mariela Martínez";
   }, []);
 
+  // Si ya estamos en /propiedades y el usuario hace clic en otra categoría
+  // del menú (o navega con los botones del navegador), la URL cambia pero
+  // este componente no se vuelve a montar. Sin este efecto, los filtros se
+  // quedaban "pegados" con el valor con el que se cargó la página la
+  // primera vez. Este efecto vuelve a leer la URL cada vez que cambia y
+  // actualiza los filtros para que coincidan.
+  useEffect(() => {
+    const params = new URLSearchParams(searchString);
+    setOperation(params.get("operation") || "todos");
+    setType(params.get("type") || "todos");
+    setNeighborhood(params.get("neighborhood") || "");
+    setBedrooms(params.get("bedrooms") || "todos");
+    setPriceRange([
+      Number(params.get("minPrice")) || 0,
+      Number(params.get("maxPrice")) || 1000000
+    ]);
+  }, [searchString]);
+
   const buildParams = () => {
     const params: any = {};
     if (operation && operation !== "todos") params.operation = operation;
