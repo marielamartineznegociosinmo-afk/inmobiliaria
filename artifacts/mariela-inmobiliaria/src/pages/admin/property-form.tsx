@@ -25,6 +25,7 @@ const TYPE_LABELS: Record<string, string> = {
   local: "Local",
   oficina: "Oficina",
   campo: "Campo",
+  cochera: "Cochera",
 };
 
 const CURRENCY_LABELS: Record<string, string> = {
@@ -273,6 +274,7 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                         <SelectItem value="local">Local</SelectItem>
                         <SelectItem value="oficina">Oficina</SelectItem>
                         <SelectItem value="campo">Campo</SelectItem>
+                        <SelectItem value="cochera">Cochera</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
