@@ -81,8 +81,8 @@ export default function PropertyDetail() {
       */}
   ].filter(s => s.value != null);
 
-  const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.title} (ID: ${property.id})`;
-
+const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.title} - ${property.address}, ${property.neighborhood}, ${property.city}`;
+  
   return (
     <PageTransition className="bg-background pb-24">
       <WhatsAppButton message={whatsappMessage} />
