@@ -133,6 +133,7 @@ export default function PropertiesList() {
                     <SelectItem value="local">Local</SelectItem>
                     <SelectItem value="oficina">Oficina</SelectItem>
                     <SelectItem value="campo">Campo</SelectItem>
+                    <SelectItem value="cochera">Cochera</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

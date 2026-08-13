@@ -12,6 +12,7 @@ import Home from "@/pages/home";
 import PropertiesList from "@/pages/properties/index";
 import PropertyDetail from "@/pages/properties/detail";
 import About from "@/pages/about";
+import RentalCalculator from "@/pages/rental-calculator";
 import Valuations from "@/pages/valuations";
 import Contact from "@/pages/contact";
 import AdminLogin from "@/pages/admin/login";
@@ -68,6 +69,9 @@ function Router() {
       </Route>
       <Route path="/nosotros">
         <PublicLayout><About /></PublicLayout>
+      </Route>
+      <Route path="/nosotros/calculadora-de-alquileres">
+        <PublicLayout><RentalCalculator /></PublicLayout>
       </Route>
       <Route path="/tasaciones">
         <PublicLayout><Valuations /></PublicLayout>
