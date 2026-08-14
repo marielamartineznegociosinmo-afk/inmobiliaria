@@ -55,26 +55,30 @@ async function geocodeAddress(query: string): Promise<Coordinates | null> {
   }
 }
 
-// Saca el nombre de la calle de una dirección: corta en intersecciones
-// ("Calle & Calle", "Calle y Calle", "Calle esq. Calle", "Calle / Calle")
-// y descarta la altura/número, quedándose solo con el nombre de la calle.
-function extractStreetName(address: string): string {
-  const firstSegment = address
-    .split(/\s*(?:&|\/|\by\b| esq\.?| esquina\b)\s*/i)[0]
-    ?.trim() ?? "";
-  const withoutNumber = firstSegment.replace(/\d+.*$/, "").trim();
-  return withoutNumber || firstSegment;
+// Saca los nombres de calle de una dirección de esquina/intersección, por
+// ejemplo "Esquina de Garrigó y Villa Seguí", "Solá & Villaguay" o
+// "Belgrano esq. San Martín". Devuelve una o dos calles (sin altura), en
+// orden, para poder ubicar el mapa sobre la calle real en vez del barrio.
+function extractStreetNames(address: string): string[] {
+  const withoutPrefix = address.replace(/^\s*esq(?:uina)?\.?\s*(?:de\s+)?/i, "").trim();
+  const segments = withoutPrefix
+    .split(/\s*(?:&|\/|\by\b| esq\.?| esquina\b)\s*/i)
+    .map((s) => s.replace(/\d+.*$/, "").trim())
+    .filter(Boolean);
+  return segments.length > 0 ? segments : [withoutPrefix];
 }
 
 export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
   const [coords, setCoords] = useState<Coordinates | null>(null);
   const [precision, setPrecision] = useState<Precision>("none");
+  const [matchedStreet, setMatchedStreet] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
   const fullAddress = [address, neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
   const addressOnlyQuery = [address, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
-  const streetName = extractStreetName(address);
-  const streetQuery = [streetName, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
+  const streetNames = extractStreetNames(address);
+  const streetQueries = streetNames.map((name) => [name, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", "));
+  const streetNamesKey = streetQueries.join("|");
   const neighborhoodQuery = [neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
   const cityQuery = [city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
 
@@ -83,15 +87,17 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
     setReady(false);
     setCoords(null);
     setPrecision("none");
+    setMatchedStreet(null);
 
     async function run() {
       // De más preciso a más general:
       // 1) dirección completa   2) dirección sin el barrio
-      // 3) solo el nombre de la calle   4) barrio   5) solo ciudad
-      const attempts: Array<{ query: string; precision: Precision }> = [
+      // 3) cada calle de la dirección (por si es una esquina)
+      // 4) barrio   5) solo ciudad
+      const attempts: Array<{ query: string; precision: Precision; street?: string }> = [
         { query: fullAddress, precision: "exact" },
         { query: addressOnlyQuery, precision: "exact" },
-        ...(streetName ? [{ query: streetQuery, precision: "street" as Precision }] : []),
+        ...streetQueries.map((query, i) => ({ query, precision: "street" as Precision, street: streetNames[i] })),
         { query: neighborhoodQuery, precision: "area" },
         { query: cityQuery, precision: "area" },
       ];
@@ -102,6 +108,7 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
         if (result) {
           setCoords(result);
           setPrecision(attempt.precision);
+          setMatchedStreet(attempt.street ?? null);
           setReady(true);
           return;
         }
@@ -115,7 +122,8 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
     return () => {
       cancelled = true;
     };
-  }, [fullAddress, addressOnlyQuery, streetQuery, streetName, neighborhoodQuery, cityQuery]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fullAddress, addressOnlyQuery, streetNamesKey, neighborhoodQuery, cityQuery]);
 
   if (coords && precision === "exact") {
     return (
@@ -166,7 +174,7 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
             pathOptions={{ color: "#2D3191", fillColor: "#2D3191", fillOpacity: 0.15 }}
           >
             <Popup>
-              Zona aproximada{isStreet && streetName ? ` — ${streetName}` : ""}
+              Zona aproximada{isStreet && matchedStreet ? ` — ${matchedStreet}` : ""}
               {neighborhood ? `, ${neighborhood}` : ""}
               {city ? `, ${city}` : ""}
             </Popup>
