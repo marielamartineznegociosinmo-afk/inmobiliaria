@@ -74,8 +74,10 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
   const [matchedStreet, setMatchedStreet] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
-  const fullAddress = [address, neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
-  const addressOnlyQuery = [address, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
+  // El barrio/zona ya NO se usa para buscar la ubicación (solo se sigue
+  // mostrando como texto informativo abajo): la búsqueda se arma solo con
+  // dirección + ciudad, porque incluir el barrio a veces confundía al buscador.
+  const addressQuery = [address, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
   const streetNames = extractStreetNames(address);
   // Formato "Calle1 & Calle2": algunos geocodificadores (incluido Nominatim,
   // a veces) lo interpretan como el cruce real de las dos calles y devuelven
@@ -87,7 +89,6 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
       : null;
   const streetQueries = streetNames.map((name) => [name, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", "));
   const streetNamesKey = streetQueries.join("|");
-  const neighborhoodQuery = [neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
   const cityQuery = [city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
 
   useEffect(() => {
@@ -99,15 +100,13 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
 
     async function run() {
       // De más preciso a más general:
-      // 1) dirección completa   2) dirección sin el barrio
-      // 3) cruce "Calle1 & Calle2" (por si el buscador lo resuelve como esquina)
-      // 4) cada calle por separado   5) barrio   6) solo ciudad
+      // 1) dirección completa   2) cruce "Calle1 & Calle2" (por si el
+      // buscador lo resuelve como esquina)   3) cada calle por separado
+      // 4) solo ciudad
       const attempts: Array<{ query: string; precision: Precision; street?: string }> = [
-        { query: fullAddress, precision: "exact" },
-        { query: addressOnlyQuery, precision: "exact" },
+        { query: addressQuery, precision: "exact" },
         ...(intersectionQuery ? [{ query: intersectionQuery, precision: "exact" as Precision }] : []),
         ...streetQueries.map((query, i) => ({ query, precision: "street" as Precision, street: streetNames[i] })),
-        { query: neighborhoodQuery, precision: "area" },
         { query: cityQuery, precision: "area" },
       ];
 
@@ -132,7 +131,7 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fullAddress, addressOnlyQuery, intersectionQuery, streetNamesKey, neighborhoodQuery, cityQuery]);
+  }, [addressQuery, intersectionQuery, streetNamesKey, cityQuery]);
 
   if (coords && precision === "exact") {
     return (
