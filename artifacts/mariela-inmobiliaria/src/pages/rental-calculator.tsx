@@ -14,6 +14,7 @@ export default function RentalCalculator() {
       <AboutHero
         title="Calculadora de alquileres"
         subtitle="Una herramienta externa de referencia para actualizar contratos de alquiler."
+        image="/calculadora-alquileres.jpg"
       />
 
       <section className="py-16 bg-background">
