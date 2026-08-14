@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MapPin, ExternalLink } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 interface PropertyMapProps {
   address: string;
@@ -15,8 +15,10 @@ interface Coordinates {
   lon: number;
 }
 
-// Custom pin icon (matches site's primary color) built with a plain SVG data URI,
-// avoids the classic Leaflet + bundler "missing marker icon" issue.
+type Precision = "exact" | "approximate" | "none";
+
+// Ícono de pin personalizado (color primario del sitio) hecho con SVG inline,
+// evita el clásico problema de Leaflet con los íconos por defecto en Vite.
 const pinIcon = L.divIcon({
   className: "",
   html: `
@@ -30,8 +32,7 @@ const pinIcon = L.divIcon({
   popupAnchor: [0, -40],
 });
 
-// In-memory cache so navigating between properties (or revisiting one) doesn't
-// re-hit the geocoding service unnecessarily.
+// Cache en memoria para no repetir búsquedas al navegar entre propiedades.
 const geocodeCache = new Map<string, Coordinates | null>();
 
 async function geocodeAddress(query: string): Promise<Coordinates | null> {
@@ -56,45 +57,66 @@ async function geocodeAddress(query: string): Promise<Coordinates | null> {
 
 export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
   const [coords, setCoords] = useState<Coordinates | null>(null);
-  const [status, setStatus] = useState<"loading" | "found" | "not-found">("loading");
+  const [precision, setPrecision] = useState<Precision>("none");
+  const [ready, setReady] = useState(false);
 
   const fullAddress = [address, neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
-  const approxQuery = [neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+  const neighborhoodQuery = [neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
+  const cityQuery = [city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
 
   useEffect(() => {
     let cancelled = false;
-    setStatus("loading");
+    setReady(false);
     setCoords(null);
+    setPrecision("none");
 
     async function run() {
-      // Try the full street address first; if that fails, fall back to just
-      // the neighborhood/city so we can still show an approximate area.
-      let result = await geocodeAddress(fullAddress);
-      if (!result) {
-        result = await geocodeAddress(approxQuery);
-      }
+      // Vamos de más preciso a más general: dirección exacta → barrio/ciudad →
+      // solo ciudad. Casi siempre alguno de los tres encuentra algo, así que
+      // el mapa se ve prácticamente siempre, aunque sea con menos precisión.
+      const exact = await geocodeAddress(fullAddress);
       if (cancelled) return;
-      if (result) {
-        setCoords(result);
-        setStatus("found");
-      } else {
-        setStatus("not-found");
+      if (exact) {
+        setCoords(exact);
+        setPrecision("exact");
+        setReady(true);
+        return;
       }
+
+      const approxNeighborhood = await geocodeAddress(neighborhoodQuery);
+      if (cancelled) return;
+      if (approxNeighborhood) {
+        setCoords(approxNeighborhood);
+        setPrecision("approximate");
+        setReady(true);
+        return;
+      }
+
+      const approxCity = await geocodeAddress(cityQuery);
+      if (cancelled) return;
+      if (approxCity) {
+        setCoords(approxCity);
+        setPrecision("approximate");
+        setReady(true);
+        return;
+      }
+
+      setPrecision("none");
+      setReady(true);
     }
 
     void run();
     return () => {
       cancelled = true;
     };
-  }, [fullAddress, approxQuery]);
+  }, [fullAddress, neighborhoodQuery, cityQuery]);
 
-  if (status === "found" && coords) {
+  if (coords && precision === "exact") {
     return (
       <div className="aspect-video rounded-xl overflow-hidden border relative z-0">
         <MapContainer
           center={[coords.lat, coords.lon]}
-          zoom={15}
+          zoom={16}
           scrollWheelZoom={false}
           style={{ height: "100%", width: "100%" }}
         >
@@ -113,24 +135,46 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
     );
   }
 
-  // Loading state or geocoding failed: keep the existing calm placeholder look,
-  // but always offer a working link out to Google Maps so it's never a dead end.
+  if (coords && precision === "approximate") {
+    // No tenemos la dirección exacta (o preferimos no mostrarla): igual
+    // mostramos un mapa real, más alejado, con un círculo indicando la zona
+    // aproximada en vez de un pin puntual.
+    return (
+      <div className="aspect-video rounded-xl overflow-hidden border relative z-0">
+        <MapContainer
+          center={[coords.lat, coords.lon]}
+          zoom={13}
+          scrollWheelZoom={false}
+          style={{ height: "100%", width: "100%" }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <Circle
+            center={[coords.lat, coords.lon]}
+            radius={900}
+            pathOptions={{ color: "#2D3191", fillColor: "#2D3191", fillOpacity: 0.15 }}
+          >
+            <Popup>
+              Zona aproximada: {neighborhood}
+              {city ? `, ${city}` : ""}
+            </Popup>
+          </Circle>
+        </MapContainer>
+      </div>
+    );
+  }
+
+  // Solo llegamos acá si ni siquiera la ciudad se pudo ubicar (muy raro) o
+  // mientras se está buscando por primera vez.
   return (
     <div className="aspect-video bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
       <div className="relative z-10 flex flex-col items-center bg-background/90 p-4 rounded-xl backdrop-blur-sm border shadow-sm text-center">
         <MapPin className="w-8 h-8 text-primary mb-2" />
         <p className="font-semibold">{neighborhood}</p>
         <p className="text-sm text-muted-foreground">{city}</p>
-        {status === "not-found" && (
-          <a
-            href={googleMapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-          >
-            Ver en Google Maps <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        )}
+        {!ready && <p className="text-xs text-muted-foreground mt-2">Cargando mapa…</p>}
       </div>
     </div>
   );
