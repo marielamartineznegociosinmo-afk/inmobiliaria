@@ -24,9 +24,9 @@ export default function PropertyDetail() {
   });
   
   const { data: relatedProperties } = useGetRelatedProperties(id, {
-    query: { 
-      queryKey: ['property', id], 
-      enabled: !!id 
+    query: {
+      queryKey: ['property', id, 'related'],
+      enabled: !!id
   }
   });
 
