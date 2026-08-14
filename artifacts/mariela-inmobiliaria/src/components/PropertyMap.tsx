@@ -77,6 +77,14 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
   const fullAddress = [address, neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
   const addressOnlyQuery = [address, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
   const streetNames = extractStreetNames(address);
+  // Formato "Calle1 & Calle2": algunos geocodificadores (incluido Nominatim,
+  // a veces) lo interpretan como el cruce real de las dos calles y devuelven
+  // el punto exacto de la esquina, en vez de un punto cualquiera de una sola
+  // calle. Lo probamos antes de resignarnos a una sola calle.
+  const intersectionQuery =
+    streetNames.length >= 2
+      ? [`${streetNames[0]} & ${streetNames[1]}`, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ")
+      : null;
   const streetQueries = streetNames.map((name) => [name, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", "));
   const streetNamesKey = streetQueries.join("|");
   const neighborhoodQuery = [neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
@@ -92,11 +100,12 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
     async function run() {
       // De más preciso a más general:
       // 1) dirección completa   2) dirección sin el barrio
-      // 3) cada calle de la dirección (por si es una esquina)
-      // 4) barrio   5) solo ciudad
+      // 3) cruce "Calle1 & Calle2" (por si el buscador lo resuelve como esquina)
+      // 4) cada calle por separado   5) barrio   6) solo ciudad
       const attempts: Array<{ query: string; precision: Precision; street?: string }> = [
         { query: fullAddress, precision: "exact" },
         { query: addressOnlyQuery, precision: "exact" },
+        ...(intersectionQuery ? [{ query: intersectionQuery, precision: "exact" as Precision }] : []),
         ...streetQueries.map((query, i) => ({ query, precision: "street" as Precision, street: streetNames[i] })),
         { query: neighborhoodQuery, precision: "area" },
         { query: cityQuery, precision: "area" },
@@ -123,7 +132,7 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fullAddress, addressOnlyQuery, streetNamesKey, neighborhoodQuery, cityQuery]);
+  }, [fullAddress, addressOnlyQuery, intersectionQuery, streetNamesKey, neighborhoodQuery, cityQuery]);
 
   if (coords && precision === "exact") {
     return (
