@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, gte, lte, sql } from "drizzle-orm";
+import { eq, and, gte, lte, sql, ne, notInArray } from "drizzle-orm";
 import { db, propertiesTable } from "@workspace/db";
 import {
   ListPropertiesQueryParams,
@@ -105,14 +105,34 @@ router.get("/properties/:id/related", async (req, res): Promise<void> => {
     res.json([]);
     return;
   }
-  const related = await db.select().from(propertiesTable)
+
+  // Primero, propiedades activas de la misma zona/barrio.
+  const sameNeighborhood = await db.select().from(propertiesTable)
     .where(and(
       eq(propertiesTable.active, true),
-      eq(propertiesTable.type, source.type),
-      sql`${propertiesTable.id} != ${parsed.data.id}`
+      eq(propertiesTable.neighborhood, source.neighborhood),
+      ne(propertiesTable.id, parsed.data.id)
     ))
     .orderBy(propertiesTable.createdAt)
     .limit(3);
+
+  let related = sameNeighborhood;
+
+  // Si no alcanzan para completar 3, sumamos propiedades del mismo tipo
+  // (sin repetir las ya elegidas) para no dejar la sección vacía.
+  if (related.length < 3) {
+    const excludeIds = [parsed.data.id, ...sameNeighborhood.map((p) => p.id)];
+    const sameType = await db.select().from(propertiesTable)
+      .where(and(
+        eq(propertiesTable.active, true),
+        eq(propertiesTable.type, source.type),
+        notInArray(propertiesTable.id, excludeIds)
+      ))
+      .orderBy(propertiesTable.createdAt)
+      .limit(3 - related.length);
+    related = [...related, ...sameType];
+  }
+
   res.json(GetRelatedPropertiesResponse.parse(related.map(serializeProperty)));
 });
 
