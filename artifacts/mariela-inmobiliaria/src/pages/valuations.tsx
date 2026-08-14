@@ -1,4 +1,5 @@
 import { PageTransition } from "@/components/layout/PageTransition";
+import { AboutHero } from "@/components/layout/AboutHero";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -81,40 +82,11 @@ export default function Valuations() {
   return (
     <PageTransition>
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground py-20 lg:py-28">
-        <div className="container mx-auto px-4 text-center max-w-4xl">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight"
-          >
-            ¿Querés saber cuánto vale tu propiedad?
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="text-xl text-primary-foreground/80 font-light leading-relaxed mb-10"
-          >
-            Realizamos tasaciones en Paraná, Oro Verde, San Benito, Colonia Avellaneda y localidades cercanas. Analizamos tu propiedad, su ubicación y el mercado actual para brindarte una orientación clara y realista.          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-          >
-            <a href={WA_TASACION} target="_blank" rel="noopener noreferrer">
-              <Button
-                size="lg"
-                className="h-14 px-10 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground"
-                data-testid="button-tasacion-hero"
-              >
-                <MessageCircle className="w-6 h-6 mr-2" />
-                Solicitá tu tasación
-              </Button>
-            </a>
-          </motion.div>
-        </div>
-      </section>
+      <AboutHero
+        title="¿Querés saber cuánto vale tu propiedad?"
+        subtitle="Realizamos tasaciones en Paraná, Oro Verde, San Benito, Colonia Avellaneda y localidades cercanas. Analizamos tu propiedad, su ubicación y el mercado actual para brindarte una orientación clara y realista."
+        image="/tasaciones.jpg"
+      />
 
       {/* How it works + Form */}
       <section className="py-20 bg-background relative -mt-8">
