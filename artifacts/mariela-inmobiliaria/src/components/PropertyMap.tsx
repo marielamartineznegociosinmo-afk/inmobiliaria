@@ -15,7 +15,7 @@ interface Coordinates {
   lon: number;
 }
 
-type Precision = "exact" | "approximate" | "none";
+type Precision = "exact" | "street" | "area" | "none";
 
 // Ícono de pin personalizado (color primario del sitio) hecho con SVG inline,
 // evita el clásico problema de Leaflet con los íconos por defecto en Vite.
@@ -55,12 +55,26 @@ async function geocodeAddress(query: string): Promise<Coordinates | null> {
   }
 }
 
+// Saca el nombre de la calle de una dirección: corta en intersecciones
+// ("Calle & Calle", "Calle y Calle", "Calle esq. Calle", "Calle / Calle")
+// y descarta la altura/número, quedándose solo con el nombre de la calle.
+function extractStreetName(address: string): string {
+  const firstSegment = address
+    .split(/\s*(?:&|\/|\by\b| esq\.?| esquina\b)\s*/i)[0]
+    ?.trim() ?? "";
+  const withoutNumber = firstSegment.replace(/\d+.*$/, "").trim();
+  return withoutNumber || firstSegment;
+}
+
 export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
   const [coords, setCoords] = useState<Coordinates | null>(null);
   const [precision, setPrecision] = useState<Precision>("none");
   const [ready, setReady] = useState(false);
 
   const fullAddress = [address, neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
+  const addressOnlyQuery = [address, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
+  const streetName = extractStreetName(address);
+  const streetQuery = [streetName, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
   const neighborhoodQuery = [neighborhood, city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
   const cityQuery = [city, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
 
@@ -71,34 +85,26 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
     setPrecision("none");
 
     async function run() {
-      // Vamos de más preciso a más general: dirección exacta → barrio/ciudad →
-      // solo ciudad. Casi siempre alguno de los tres encuentra algo, así que
-      // el mapa se ve prácticamente siempre, aunque sea con menos precisión.
-      const exact = await geocodeAddress(fullAddress);
-      if (cancelled) return;
-      if (exact) {
-        setCoords(exact);
-        setPrecision("exact");
-        setReady(true);
-        return;
-      }
+      // De más preciso a más general:
+      // 1) dirección completa   2) dirección sin el barrio
+      // 3) solo el nombre de la calle   4) barrio   5) solo ciudad
+      const attempts: Array<{ query: string; precision: Precision }> = [
+        { query: fullAddress, precision: "exact" },
+        { query: addressOnlyQuery, precision: "exact" },
+        ...(streetName ? [{ query: streetQuery, precision: "street" as Precision }] : []),
+        { query: neighborhoodQuery, precision: "area" },
+        { query: cityQuery, precision: "area" },
+      ];
 
-      const approxNeighborhood = await geocodeAddress(neighborhoodQuery);
-      if (cancelled) return;
-      if (approxNeighborhood) {
-        setCoords(approxNeighborhood);
-        setPrecision("approximate");
-        setReady(true);
-        return;
-      }
-
-      const approxCity = await geocodeAddress(cityQuery);
-      if (cancelled) return;
-      if (approxCity) {
-        setCoords(approxCity);
-        setPrecision("approximate");
-        setReady(true);
-        return;
+      for (const attempt of attempts) {
+        const result = await geocodeAddress(attempt.query);
+        if (cancelled) return;
+        if (result) {
+          setCoords(result);
+          setPrecision(attempt.precision);
+          setReady(true);
+          return;
+        }
       }
 
       setPrecision("none");
@@ -109,7 +115,7 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
     return () => {
       cancelled = true;
     };
-  }, [fullAddress, neighborhoodQuery, cityQuery]);
+  }, [fullAddress, addressOnlyQuery, streetQuery, streetName, neighborhoodQuery, cityQuery]);
 
   if (coords && precision === "exact") {
     return (
@@ -135,15 +141,18 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
     );
   }
 
-  if (coords && precision === "approximate") {
-    // No tenemos la dirección exacta (o preferimos no mostrarla): igual
-    // mostramos un mapa real, más alejado, con un círculo indicando la zona
-    // aproximada en vez de un pin puntual.
+  if (coords && (precision === "street" || precision === "area")) {
+    // No hay match exacto de la altura, pero sí de la calle (o al menos del
+    // barrio/ciudad): mostramos un mapa real centrado ahí, con un círculo en
+    // vez de un pin puntual para dejar claro que es aproximado. El círculo es
+    // más chico cuando estamos ubicados sobre la calle real, y más grande
+    // cuando solo pudimos ubicar el barrio o la ciudad.
+    const isStreet = precision === "street";
     return (
       <div className="aspect-video rounded-xl overflow-hidden border relative z-0">
         <MapContainer
           center={[coords.lat, coords.lon]}
-          zoom={13}
+          zoom={isStreet ? 15 : 13}
           scrollWheelZoom={false}
           style={{ height: "100%", width: "100%" }}
         >
@@ -153,11 +162,12 @@ export function PropertyMap({ address, neighborhood, city }: PropertyMapProps) {
           />
           <Circle
             center={[coords.lat, coords.lon]}
-            radius={900}
+            radius={isStreet ? 250 : 900}
             pathOptions={{ color: "#2D3191", fillColor: "#2D3191", fillOpacity: 0.15 }}
           >
             <Popup>
-              Zona aproximada: {neighborhood}
+              Zona aproximada{isStreet && streetName ? ` — ${streetName}` : ""}
+              {neighborhood ? `, ${neighborhood}` : ""}
               {city ? `, ${city}` : ""}
             </Popup>
           </Circle>
