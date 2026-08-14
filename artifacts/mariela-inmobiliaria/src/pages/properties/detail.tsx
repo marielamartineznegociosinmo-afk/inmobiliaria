@@ -1,5 +1,6 @@
 import { PageTransition } from "@/components/layout/PageTransition";
 import { PropertyCard, formatPrice } from "@/components/PropertyCard";
+import { PropertyMap } from "@/components/PropertyMap";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -249,13 +250,7 @@ const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.t
 
               <div className="mt-8 pt-6 border-t">
                 <h3 className="font-bold text-foreground mb-4">Ubicación aproximada</h3>
-                <div className="aspect-video bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
-                  <div className="relative z-10 flex flex-col items-center bg-background/90 p-4 rounded-xl backdrop-blur-sm border shadow-sm">
-                    <MapPin className="w-8 h-8 text-primary mb-2" />
-                    <p className="font-semibold text-center">{property.neighborhood}</p>
-                    <p className="text-sm text-muted-foreground text-center">{property.city}</p>
-                  </div>
-                </div>
+                <PropertyMap address={property.address} neighborhood={property.neighborhood} city={property.city} />
               </div>
             </div>
           </div>
