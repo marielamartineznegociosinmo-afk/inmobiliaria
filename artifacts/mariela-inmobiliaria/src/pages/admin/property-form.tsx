@@ -8,7 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { customFetch, useCreateProperty, useUpdateProperty, useGetProperty, getListPropertiesQueryKey, type Property } from "@workspace/api-client-react";
 import { useRoute, useLocation, Link } from "wouter";
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
+import type { Zone } from "@/components/ZonePicker";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Upload, X } from "lucide-react";
@@ -59,6 +60,8 @@ function buildFormData(property?: Property) {
   };
 }
 
+const ZonePicker = lazy(() => import("@/components/ZonePicker"));
+
 export default function PropertyForm() {
   const [, params] = useRoute("/admin/propiedades/:id/editar");
   const isEditing = !!params?.id;
@@ -93,6 +96,14 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
 
   const [formData, setFormData] = useState(() => buildFormData(property));
   const [uploadingFiles, setUploadingFiles] = useState(false);
+  // Zona aproximada en el mapa. Solo se envía si se tocó en este formulario;
+  // si no, el servidor la calcula sola a partir de la dirección.
+  const [zone, setZone] = useState<Zone>(() =>
+    property?.mapLatitude != null && property?.mapLongitude != null
+      ? { lat: property.mapLatitude, lng: property.mapLongitude }
+      : null
+  );
+  const [zoneTouched, setZoneTouched] = useState(false);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -168,6 +179,7 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
       age: formData.age ? Number(formData.age) : undefined,
       price: Number(formData.price),
       propertyCode: formData.propertyCode || undefined,
+      ...(zoneTouched ? { mapLatitude: zone?.lat ?? null, mapLongitude: zone?.lng ?? null } : {}),
     };
 
     if (isEditing) {
@@ -337,6 +349,15 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                       required 
                     />
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Zona en el mapa de propiedades</Label>
+                  <Suspense fallback={<div className="h-72 bg-muted animate-pulse rounded-xl" />}>
+                    <ZonePicker
+                      value={zone}
+                      onChange={(z) => { setZone(z); setZoneTouched(true); }}
+                    />
+                  </Suspense>
                 </div>
               </CardContent>
             </Card>

@@ -68,6 +68,10 @@ export interface Property {
   photos: string[];
   /** @nullable */
   coverPhoto?: string | null;
+  /** @nullable */
+  mapLatitude?: number | null;
+  /** @nullable */
+  mapLongitude?: number | null;
   featured: boolean;
   active: boolean;
   createdAt: string;
@@ -121,6 +125,10 @@ export interface PropertyInput {
   additionalFeatures?: string;
   photos?: string[];
   coverPhoto?: string;
+  /** @nullable */
+  mapLatitude?: number | null;
+  /** @nullable */
+  mapLongitude?: number | null;
   featured?: boolean;
   active?: boolean;
 }
@@ -173,6 +181,10 @@ export interface PropertyUpdate {
   additionalFeatures?: string;
   photos?: string[];
   coverPhoto?: string;
+  /** @nullable */
+  mapLatitude?: number | null;
+  /** @nullable */
+  mapLongitude?: number | null;
   featured?: boolean;
   active?: boolean;
 }

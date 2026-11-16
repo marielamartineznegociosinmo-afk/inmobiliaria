@@ -23,6 +23,10 @@ export const propertiesTable = pgTable("properties", {
   additionalFeatures: text("additional_features"),
   photos: text("photos").array().notNull().default([]),
   coverPhoto: text("cover_photo"),
+  // Centro de la ZONA aproximada para el mapa (nunca la ubicación exacta:
+  // al ubicarla automáticamente se corre unos cientos de metros a propósito).
+  mapLatitude: real("map_latitude"),
+  mapLongitude: real("map_longitude"),
   featured: boolean("featured").notNull().default(false),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

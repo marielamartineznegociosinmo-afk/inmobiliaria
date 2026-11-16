@@ -8,9 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { useListProperties } from "@workspace/api-client-react";
 import { useLocation, useSearch } from "wouter";
-import { useState, useEffect } from "react";
-import { Building, Filter, SlidersHorizontal, X } from "lucide-react";
+import { useState, useEffect, lazy, Suspense } from "react";
+import { Building, Filter, SlidersHorizontal, X, LayoutGrid, Map as MapIcon } from "lucide-react";
 import { motion } from "framer-motion";
+
+// El mapa se carga solo cuando alguien lo abre, para que la lista siga siendo rápida.
+const PropertiesMap = lazy(() => import("@/components/PropertiesMap"));
 
 export default function PropertiesList() {
   const [_, setLocation] = useLocation();
@@ -26,6 +29,7 @@ export default function PropertiesList() {
     Number(searchParams.get("maxPrice")) || 1000000
   ]);
   const [showFilters, setShowFilters] = useState(false);
+  const isMapView = searchParams.get("vista") === "mapa";
 
   useSeo({
     title: "Propiedades en venta y alquiler en Paraná | Mariela Martínez Negocios Inmobiliarios",
@@ -72,6 +76,7 @@ export default function PropertiesList() {
     if (bedrooms && bedrooms !== "todos") params.append("bedrooms", bedrooms);
     if (priceRange[0] > 0) params.append("minPrice", priceRange[0].toString());
     if (priceRange[1] < 1000000) params.append("maxPrice", priceRange[1].toString());
+    if (isMapView) params.append("vista", "mapa");
     
     setLocation(`/propiedades?${params.toString()}`);
     if (window.innerWidth < 1024) setShowFilters(false);
@@ -83,7 +88,15 @@ export default function PropertiesList() {
     setNeighborhood("");
     setBedrooms("todos");
     setPriceRange([0, 1000000]);
-    setLocation("/propiedades");
+    setLocation(isMapView ? "/propiedades?vista=mapa" : "/propiedades");
+  };
+
+  const setView = (view: "lista" | "mapa") => {
+    const params = new URLSearchParams(searchString);
+    if (view === "mapa") params.set("vista", "mapa");
+    else params.delete("vista");
+    const qs = params.toString();
+    setLocation(qs ? `/propiedades?${qs}` : "/propiedades");
   };
 
   return (
@@ -209,7 +222,33 @@ export default function PropertiesList() {
 
         {/* Properties Grid */}
         <main className="lg:w-3/4">
-          {isLoading ? (
+          <div className="flex justify-end mb-6">
+            <div className="inline-flex rounded-lg border bg-card p-1 shadow-sm" role="group" aria-label="Cómo ver las propiedades">
+              <Button
+                variant={isMapView ? "ghost" : "default"}
+                size="sm"
+                onClick={() => setView("lista")}
+                aria-pressed={!isMapView}
+                className="gap-2"
+              >
+                <LayoutGrid className="w-4 h-4" /> Lista
+              </Button>
+              <Button
+                variant={isMapView ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setView("mapa")}
+                aria-pressed={isMapView}
+                className="gap-2"
+              >
+                <MapIcon className="w-4 h-4" /> Ver en mapa
+              </Button>
+            </div>
+          </div>
+          {isMapView && !isLoading && properties && properties.length > 0 ? (
+            <Suspense fallback={<div className="h-[70vh] min-h-[420px] bg-muted animate-pulse rounded-2xl" />}>
+              <PropertiesMap properties={properties} />
+            </Suspense>
+          ) : isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="h-[400px] bg-muted animate-pulse rounded-xl"></div>

@@ -19,6 +19,7 @@ import {
   GetRelatedPropertiesResponse,
 } from "@workspace/api-zod";
 import { authMiddleware } from "../middlewares/auth";
+import { geocodeInBackground } from "../lib/geocode";
 
 const router: IRouter = Router();
 
@@ -206,6 +207,7 @@ router.post("/properties", authMiddleware, async (req, res): Promise<void> => {
     featured: parsed.data.featured ?? false,
     active: parsed.data.active ?? true,
   }).returning();
+  if (row.mapLatitude == null || row.mapLongitude == null) geocodeInBackground(row);
   res.status(201).json(GetPropertyResponse.parse(serializeProperty(row)));
 });
 
@@ -221,14 +223,30 @@ router.put("/properties/:id", authMiddleware, async (req, res): Promise<void> =>
     res.status(400).json({ error: bodyParsed.error.message });
     return;
   }
+  const body = { ...bodyParsed.data };
+  const zoneSetByHand = body.mapLatitude !== undefined || body.mapLongitude !== undefined;
+  if (!zoneSetByHand && (body.address !== undefined || body.neighborhood !== undefined || body.city !== undefined)) {
+    const [current] = await db.select().from(propertiesTable).where(eq(propertiesTable.id, paramsParsed.data.id));
+    const moved = current && (
+      (body.address !== undefined && body.address !== current.address) ||
+      (body.neighborhood !== undefined && body.neighborhood !== current.neighborhood) ||
+      (body.city !== undefined && body.city !== current.city)
+    );
+    // Cambió la dirección: se vuelve a ubicar automáticamente.
+    if (moved) {
+      body.mapLatitude = null;
+      body.mapLongitude = null;
+    }
+  }
   const [row] = await db.update(propertiesTable)
-    .set({ ...bodyParsed.data, updatedAt: new Date() })
+    .set({ ...body, updatedAt: new Date() })
     .where(eq(propertiesTable.id, paramsParsed.data.id))
     .returning();
   if (!row) {
     res.status(404).json({ error: "Propiedad no encontrada" });
     return;
   }
+  if (row.mapLatitude == null || row.mapLongitude == null) geocodeInBackground(row);
   res.json(UpdatePropertyResponse.parse(serializeProperty(row)));
 });
 
