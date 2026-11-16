@@ -19,6 +19,8 @@ export const propertiesTable = pgTable("properties", {
   coveredArea: real("covered_area"),
   totalArea: real("total_area"),
   garage: boolean("garage"),
+  // Apta crédito hipotecario.
+  creditEligible: boolean("credit_eligible"),
   age: integer("age"),
   additionalFeatures: text("additional_features"),
   photos: text("photos").array().notNull().default([]),

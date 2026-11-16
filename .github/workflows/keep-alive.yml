@@ -1,0 +1,27 @@
+# Mantiene despierto el servidor gratuito de Render.
+# Render apaga el servidor si nadie lo usa por 15 minutos, y el siguiente
+# visitante espera 30-60 segundos. Esta tarea lo consulta cada 10 minutos.
+#
+# Ojo: GitHub pausa las tareas programadas si el repositorio pasa 60 días sin
+# cambios. Si eso pasa, se reactiva desde la pestaña "Actions" del repositorio.
+name: Mantener servidor despierto
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Consultar el servidor
+        run: |
+          for i in 1 2 3; do
+            if curl -fsS --max-time 60 https://inmobiliaria-5s58.onrender.com/api/healthz > /dev/null; then
+              echo "Servidor despierto"; exit 0
+            fi
+            echo "Intento $i sin respuesta, reintento..."; sleep 10
+          done
+          echo "El servidor no respondió"; exit 1

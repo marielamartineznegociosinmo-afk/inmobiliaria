@@ -4,6 +4,8 @@ import { Property } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { propertyPath } from "@/lib/property-url";
+import { optimizedImage } from "@/lib/images";
+import { typeLabel } from "@/lib/property-labels";
 
 export function formatPrice(amount: number, currency: string) {
   return `${currency} ${amount.toLocaleString("es-AR")}`;
@@ -17,8 +19,10 @@ export function PropertyCard({ property }: { property: Property }) {
       <Link href={propertyPath(property)} className="block relative aspect-[4/3] overflow-hidden">
         {property.coverPhoto || (property.photos && property.photos.length > 0) ? (
           <img
-            src={property.coverPhoto || property.photos[0]}
+            src={optimizedImage(property.coverPhoto || property.photos[0], 640)}
             alt={property.title}
+            loading="lazy"
+            decoding="async"
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 ease-out"
           />
         ) : (
@@ -44,8 +48,13 @@ export function PropertyCard({ property }: { property: Property }) {
         </div>
         <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
           <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm text-foreground font-semibold px-3 py-1.5 shadow-sm">
-            {property.type.charAt(0).toUpperCase() + property.type.slice(1)}
+            {typeLabel(property.type)}
           </Badge>
+          {property.creditEligible && (
+            <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 font-semibold px-3 py-1.5 shadow-sm">
+              Apto crédito
+            </Badge>
+          )}
         </div>
       </Link>
       

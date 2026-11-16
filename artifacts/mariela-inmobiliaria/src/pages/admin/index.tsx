@@ -14,7 +14,13 @@ import { propertyPath } from "@/lib/property-url";
 
 export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: properties, isLoading } = useListProperties();
+  // Activas y pausadas: el panel tiene que mostrar todas para poder reactivarlas.
+  const { data: activeProperties, isLoading: loadingActive } = useListProperties({ active: true });
+  const { data: inactiveProperties, isLoading: loadingInactive } = useListProperties({ active: false });
+  const isLoading = loadingActive || loadingInactive;
+  const properties = activeProperties || inactiveProperties
+    ? [...(activeProperties ?? []), ...(inactiveProperties ?? [])]
+    : undefined;
   const deleteMutation = useDeleteProperty();
   const { toast } = useToast();
   const queryClient = useQueryClient();

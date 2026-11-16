@@ -31,7 +31,7 @@ export default function HomePage() {
     const params = new URLSearchParams();
     if (operation) params.append("operation", operation);
     if (type && type !== "todos") params.append("type", type);
-    if (neighborhood) params.append("neighborhood", neighborhood);
+    if (neighborhood.trim()) params.append("q", neighborhood.trim());
     setLocation(`/propiedades?${params.toString()}`);
   };
 
@@ -103,6 +103,8 @@ export default function HomePage() {
                   <SelectItem value="local">Local</SelectItem>
                   <SelectItem value="oficina">Oficina</SelectItem>
                   <SelectItem value="campo">Campo</SelectItem>
+                  <SelectItem value="cochera">Cochera</SelectItem>
+                  <SelectItem value="galpon">Galpón</SelectItem>
                 </SelectContent>
               </Select>
 

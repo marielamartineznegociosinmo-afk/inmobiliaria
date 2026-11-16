@@ -9,8 +9,12 @@ import { useRoute, useLocation, Link } from "wouter";
 import { propertyPath } from "@/lib/property-url";
 import { useSeo, SITE_URL } from "@/lib/seo";
 import { trackEvent } from "@/lib/analytics";
+import { optimizedImage } from "@/lib/images";
+import { typeLabel as labelForType } from "@/lib/property-labels";
+import { getLastListUrl } from "@/lib/list-state";
+import { ShareButton } from "@/components/ShareButton";
 import { useEffect, useState } from "react";
-import { MapPin, Bed, Bath, Maximize2, Calendar, Car, Home, ArrowLeft, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize2, Car, Home, ArrowLeft, ChevronLeft, ChevronRight, X, BadgeCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 
@@ -56,8 +60,8 @@ export default function PropertyDetail() {
     }
   }, [canonicalPath, slug, setLocation]);
 
-  const typeLabel = property ? property.type.charAt(0).toUpperCase() + property.type.slice(1) : "";
-  const seoImage = property ? (property.coverPhoto || property.photos?.[0] || null) : null;
+  const typeLabel = property ? labelForType(property.type) : "";
+  const seoImage = property ? optimizedImage(property.coverPhoto || property.photos?.[0] || null, 1200) || null : null;
   useSeo({
     title: property
       ? `${typeLabel} en ${property.operation} en ${property.neighborhood}, ${property.city} | Mariela Martínez`
@@ -141,7 +145,8 @@ export default function PropertyDetail() {
     { icon: <Maximize2 className="w-5 h-5 text-muted-foreground" />, label: "Sup. Cubierta", value: property.coveredArea ? `${property.coveredArea} m²` : null },
     { icon: <Maximize2 className="w-5 h-5 text-muted-foreground" />, label: "Sup. Total", value: property.totalArea ? `${property.totalArea} m²` : null },
     { icon: <Car className="w-5 h-5 text-muted-foreground" />, label: "Cochera", value: property.garage ? "Sí" : "No" },
-    { icon: <Home className="w-5 h-5 text-muted-foreground" />, label: "Tipo", value: property.type.charAt(0).toUpperCase() + property.type.slice(1) },
+    { icon: <Home className="w-5 h-5 text-muted-foreground" />, label: "Tipo", value: labelForType(property.type) },
+    { icon: <BadgeCheck className="w-5 h-5 text-muted-foreground" />, label: "Apto crédito", value: property.creditEligible ? "Sí" : null },
     {/*
     { icon: <Calendar className="w-5 h-5 text-muted-foreground" />, label: "Antigüedad", value: property.age ? `${property.age} años` : "A estrenar" },
       */}
@@ -177,7 +182,7 @@ const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.t
             </button>
 
             <img 
-              src={allPhotos[photoIndex]} 
+              src={optimizedImage(allPhotos[photoIndex], 1920)} 
               alt={`Foto ${photoIndex + 1}`} 
               className="max-w-[90vw] max-h-[90vh] object-contain"
             />
@@ -197,7 +202,7 @@ const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.t
       </AnimatePresence>
 
       <div className="container mx-auto px-4 pt-8">
-        <Link href="/propiedades" className="inline-flex items-center text-muted-foreground hover:text-primary mb-8 font-medium transition-colors">
+        <Link href={getLastListUrl()} className="inline-flex items-center text-muted-foreground hover:text-primary mb-8 font-medium transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Volver a resultados
         </Link>
@@ -209,7 +214,7 @@ const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.t
               className="md:col-span-2 md:row-span-2 relative cursor-pointer group"
               onClick={() => setPhotoIndex(0)}
             >
-              <img src={allPhotos[0]} alt="Principal" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+              <img src={optimizedImage(allPhotos[0], 1400)} alt="Principal" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
               <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
             </div>
             {allPhotos.slice(1, 5).map((photo, i) => (
@@ -218,7 +223,7 @@ const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.t
                 className="relative cursor-pointer hidden md:block group overflow-hidden"
                 onClick={() => setPhotoIndex(i + 1)}
               >
-                <img src={photo} alt={`Foto ${i+2}`} className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-500" />
+                <img src={optimizedImage(photo, 700)} loading="lazy" alt={`Foto ${i+2}`} className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-500" />
                 {i === 3 && allPhotos.length > 5 && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                     <span className="text-white font-bold text-lg">+{allPhotos.length - 5} fotos</span>
@@ -241,7 +246,10 @@ const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.t
                 <Badge className={property.operation === "venta" ? "bg-primary" : "bg-accent text-accent-foreground"}>
                   {property.operation.toUpperCase()}
                 </Badge>
-                <Badge variant="outline" className="bg-background">{property.type.charAt(0).toUpperCase() + property.type.slice(1)}</Badge>
+                <Badge variant="outline" className="bg-background">{labelForType(property.type)}</Badge>
+                {property.creditEligible && (
+                  <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">APTO CRÉDITO</Badge>
+                )}
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4 leading-tight">{property.title}</h1>
               <div className="flex items-center text-muted-foreground text-lg">
@@ -309,6 +317,12 @@ const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.t
                 >
                   Consultar por WhatsApp
                 </Button>
+                <ShareButton
+                  title={property.title}
+                  text={`${typeLabel} en ${property.operation} en ${property.neighborhood}, ${property.city} — ${formatPrice(property.price, property.currency)}`}
+                  path={canonicalPath ?? `/propiedades/${slug}`}
+                  trackingCode={property.propertyCode ?? String(property.id)}
+                />
                 {/* <Link href="/contacto">
                   <Button variant="outline" className="w-full h-14 text-lg font-semibold border-primary text-primary hover:bg-primary/5">
                     Dejar un mensaje

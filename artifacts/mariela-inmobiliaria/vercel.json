@@ -11,6 +11,17 @@
       "destination": "/api/sitemap"
     },
     {
+      "source": "/propiedades/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(WhatsApp|facebookexternalhit|Facebot|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest|SkypeUriPreview).*"
+        }
+      ],
+      "destination": "/api/share?slug=:slug"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

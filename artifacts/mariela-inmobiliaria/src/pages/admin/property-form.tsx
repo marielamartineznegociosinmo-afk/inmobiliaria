@@ -27,6 +27,7 @@ const TYPE_LABELS: Record<string, string> = {
   oficina: "Oficina",
   campo: "Campo",
   cochera: "Cochera",
+  galpon: "Galpón",
 };
 
 const CURRENCY_LABELS: Record<string, string> = {
@@ -51,6 +52,7 @@ function buildFormData(property?: Property) {
     coveredArea: property?.coveredArea?.toString() || "",
     totalArea: property?.totalArea?.toString() || "",
     garage: property?.garage || false,
+    creditEligible: property?.creditEligible || false,
     age: property?.age?.toString() || "",
     additionalFeatures: property?.additionalFeatures || "",
     photos: (property?.photos || []) as string[],
@@ -287,6 +289,7 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                         <SelectItem value="oficina">Oficina</SelectItem>
                         <SelectItem value="campo">Campo</SelectItem>
                         <SelectItem value="cochera">Cochera</SelectItem>
+                        <SelectItem value="galpon">Galpón</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -397,6 +400,15 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                     onCheckedChange={c => handleInputChange("garage", !!c)} 
                   />
                   <Label htmlFor="garage">Tiene cochera</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="creditEligible" 
+                    checked={formData.creditEligible} 
+                    onCheckedChange={c => handleInputChange("creditEligible", !!c)} 
+                  />
+                  <Label htmlFor="creditEligible">Apta crédito hipotecario</Label>
                 </div>
 
                 <div className="space-y-2">

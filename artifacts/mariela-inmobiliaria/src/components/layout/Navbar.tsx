@@ -9,6 +9,7 @@ const PROPERTY_CATEGORIES = [
   { label: "Campos", href: "/propiedades?type=campo" },
   { label: "Locales", href: "/propiedades?type=local" },
   { label: "Cocheras", href: "/propiedades?type=cochera" },
+  { label: "Galpones", href: "/propiedades?type=galpon" },
 ];
 
 const ABOUT_CATEGORIES = [
