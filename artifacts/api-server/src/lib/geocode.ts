@@ -2,10 +2,12 @@ import { and, eq, isNull } from "drizzle-orm";
 import { db, propertiesTable } from "@workspace/db";
 import { logger } from "./logger";
 
-// Ubica cada propiedad en el mapa de forma APROXIMADA, usando el buscador
-// gratuito de OpenStreetMap (Nominatim). El punto guardado se corre a
-// propósito entre 150 y 300 metros para no revelar la dirección exacta: en el
-// mapa se muestra un círculo de zona que igual contiene la propiedad.
+// Ubica cada propiedad en el mapa SOBRE SU CALLE, pero no en la casa exacta,
+// usando el buscador gratuito de OpenStreetMap (Nominatim):
+//  - con altura ("Corrientes 293") se busca la mitad de la cuadra
+//    ("Corrientes 250"), nunca el número real;
+//  - sin altura o en esquinas, se busca solo el nombre de la calle;
+//  - si no encuentra la calle, se usa el barrio.
 
 type Coords = { lat: number; lng: number };
 type PropertyLocation = { id: number; address: string; neighborhood: string; city: string };
@@ -41,8 +43,6 @@ async function search(query: string): Promise<Coords | null> {
   });
 }
 
-// "Esquina de Garrigó y Villa Seguí" -> ["Garrigó", "Villa Seguí"]
-// "Calle Medus" -> ["Medus"], "Corrientes 293" -> ["Corrientes"]
 // Abreviaturas comunes en nombres de calles.
 const ABBREVIATIONS: Array<[RegExp, string]> = [
   [/\bcnel\.?(?=\s)/gi, "Coronel"],
@@ -58,38 +58,39 @@ function expandAbbreviations(text: string): string {
   return ABBREVIATIONS.reduce((t, [re, full]) => t.replace(re, full), text).replace(/\s+/g, " ").trim();
 }
 
+// "Esquina de Garrigó y Villa Seguí" -> ["Garrigó", "Villa Seguí"]
+// "Calle Medus" -> ["Medus"], "Corrientes 293" -> ["Corrientes"]
 function streetNames(address: string): string[] {
   return expandAbbreviations(address)
     .replace(/^\s*(?:esquina|esq\.?)(?=[\s.])\.?\s*(?:de\s+)?/i, "")
     .split(/\s*(?:&|\/|\by\b|\be\b|\besquina\b|\besq\.|\besq(?=\s))\s*/i)
-    .map((s) => s.replace(/^\s*calle\s+/i, "").replace(/\s*(?:km\s*)?\d+.*$/i, "").trim())
+    .map((s) => s.replace(/^\s*calle\s+/i, "").replace(/\s+(?:km\s*)?(?:n[°º]?\s*)?\d+.*$/i, "").trim())
     .filter((s) => s.length > 2);
 }
 
-// Corrimiento fijo por propiedad (siempre el mismo para la misma propiedad).
-function approximate({ lat, lng }: Coords, seed: number): Coords {
-  const angle = ((seed * 137.508) % 360) * (Math.PI / 180);
-  const meters = 150 + ((seed * 7919) % 150);
-  const dLat = (meters * Math.cos(angle)) / 111_320;
-  const dLng = (meters * Math.sin(angle)) / (111_320 * Math.cos((lat * Math.PI) / 180));
-  return { lat: lat + dLat, lng: lng + dLng };
+// "Corrientes 293" -> "Corrientes 250" (mitad de la misma cuadra).
+// Devuelve null si la dirección no tiene altura (o es "Km 5,5").
+function midBlockAddress(address: string): string | null {
+  const clean = expandAbbreviations(address).replace(/^\s*calle\s+/i, "");
+  const m = /^(.*?[^\d\s])\s+(?:n[°º]?\s*)?(\d{2,5})\b/i.exec(clean);
+  if (!m || /\bkm\.?$/i.test(m[1])) return null;
+  const block = Math.floor(Number(m[2]) / 100) * 100 + 50;
+  return `${m[1].trim()} ${block}`;
 }
 
 export async function geocodeProperty(p: PropertyLocation): Promise<Coords | null> {
   const city = p.city?.trim() || "Paraná";
   const suffix = `${city}, Entre Ríos, Argentina`;
   const attempts: string[] = [];
-  if (p.address?.trim()) {
-    attempts.push(`${p.address.trim()}, ${suffix}`);
-    attempts.push(`${expandAbbreviations(p.address)}, ${suffix}`);
-  }
+  const midBlock = midBlockAddress(p.address ?? "");
+  if (midBlock) attempts.push(`${midBlock}, ${suffix}`);
+  for (const street of streetNames(p.address ?? "")) attempts.push(`${street}, ${suffix}`);
   // "Zona centro", "Zona sur", etc. no son barrios que el buscador conozca.
   if (p.neighborhood?.trim() && !/^zona\b/i.test(p.neighborhood.trim())) attempts.push(`${p.neighborhood.trim()}, ${suffix}`);
-  for (const street of streetNames(p.address ?? "")) attempts.push(`${street}, ${suffix}`);
 
   for (const query of [...new Set(attempts)]) {
     const found = await search(query);
-    if (found) return approximate(found, p.id);
+    if (found) return found;
   }
   return null;
 }

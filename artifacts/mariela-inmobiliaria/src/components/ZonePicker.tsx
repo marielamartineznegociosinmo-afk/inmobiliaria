@@ -49,8 +49,8 @@ export default function ZonePicker({ value, onChange }: { value: Zone; onChange:
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
         <p>
           {value
-            ? "Hacé clic en el mapa para mover el pin. Ponelo en la zona, no justo sobre la casa: el mapa público muestra este punto."
-            : "Todavía no está ubicada. Se ubica sola al guardar, o hacé clic en el mapa para poner el pin en la zona."}
+            ? "Hacé clic en el mapa para mover el pin. Ponelo sobre la calle, no justo sobre la casa: el mapa público muestra este punto."
+            : "Todavía no está ubicada. Se ubica sola al guardar, o hacé clic en el mapa para poner el pin sobre la calle."}
         </p>
         {value && (
           <Button type="button" variant="outline" size="sm" onClick={() => onChange(null)}>

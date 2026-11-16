@@ -7,9 +7,9 @@ import type { Property } from "@workspace/api-client-react";
 import { formatPrice } from "@/components/PropertyCard";
 import { propertyPath } from "@/lib/property-url";
 
-// Mapa con todas las propiedades. Los pines están en una ubicación
-// APROXIMADA: el servidor corre cada punto entre 150 y 300 m de la dirección
-// real, para cuidar al propietario.
+// Mapa con todas las propiedades. Cada pin está sobre la calle de la
+// propiedad, pero no en la casa exacta (el servidor ubica la mitad de la
+// cuadra o solo la calle), para cuidar al propietario.
 
 const PARANA_CENTER: [number, number] = [-31.7413, -60.5115];
 const PRIMARY = "#2D3191";
