@@ -25,21 +25,53 @@ function throttled<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
+async function fetchJson(url: string, timeoutMs: number): Promise<{ ok: boolean; status: number; data: unknown }> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, Accept: "application/json" }, signal: controller.signal });
+    return { ok: res.ok, status: res.status, data: res.ok ? await res.json() : null };
+  } catch {
+    return { ok: false, status: 0, data: null };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Si Nominatim bloquea o no responde (pasa con servidores compartidos como
+// Render), se deja de usar un rato y se va directo al respaldo (Photon).
+let nominatimPausedUntil = 0;
+
+async function searchNominatim(query: string): Promise<Coords | null | "unavailable"> {
+  if (Date.now() < nominatimPausedUntil) return "unavailable";
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ar&q=${encodeURIComponent(query)}`;
+  const res = await fetchJson(url, 6000);
+  if (!res.ok) {
+    nominatimPausedUntil = Date.now() + 10 * 60 * 1000;
+    logger.warn({ status: res.status }, "Nominatim no disponible, uso Photon por 10 minutos");
+    return "unavailable";
+  }
+  const results = res.data as Array<{ lat: string; lon: string }>;
+  return results[0] ? { lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) } : null;
+}
+
+// Photon: otro buscador gratuito basado en OpenStreetMap. Se limita a la zona
+// de Paraná y alrededores para que no traiga calles de otras provincias.
+async function searchPhoton(query: string): Promise<Coords | null> {
+  const url = `https://photon.komoot.io/api/?limit=1&bbox=-61.2,-32.4,-59.6,-31.2&q=${encodeURIComponent(query)}`;
+  const res = await fetchJson(url, 8000);
+  if (!res.ok) return null;
+  const feature = (res.data as { features?: Array<{ geometry: { coordinates: [number, number] }; properties: { countrycode?: string } }> }).features?.[0];
+  if (!feature || (feature.properties.countrycode && feature.properties.countrycode !== "AR")) return null;
+  const [lng, lat] = feature.geometry.coordinates;
+  return { lat, lng };
+}
+
 async function search(query: string): Promise<Coords | null> {
   return throttled(async () => {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ar&q=${encodeURIComponent(query)}`;
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-    try {
-      const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, Accept: "application/json" }, signal: controller.signal });
-      if (!res.ok) return null;
-      const results = (await res.json()) as Array<{ lat: string; lon: string }>;
-      return results[0] ? { lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) } : null;
-    } catch {
-      return null;
-    } finally {
-      clearTimeout(timer);
-    }
+    const fromNominatim = await searchNominatim(query);
+    if (fromNominatim !== "unavailable") return fromNominatim;
+    return searchPhoton(query);
   });
 }
 
