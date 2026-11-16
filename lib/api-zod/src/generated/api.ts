@@ -53,6 +53,8 @@ export const ListPropertiesResponseItem = zod.object({
   "additionalFeatures": zod.string().nullish(),
   "photos": zod.array(zod.string()),
   "coverPhoto": zod.string().nullish(),
+  "mapLatitude": zod.number().nullish(),
+  "mapLongitude": zod.number().nullish(),
   "featured": zod.boolean(),
   "active": zod.boolean(),
   "createdAt": zod.string()
@@ -83,6 +85,8 @@ export const CreatePropertyBody = zod.object({
   "additionalFeatures": zod.string().optional(),
   "photos": zod.array(zod.string()).optional(),
   "coverPhoto": zod.string().optional(),
+  "mapLatitude": zod.number().nullish(),
+  "mapLongitude": zod.number().nullish(),
   "featured": zod.boolean().optional(),
   "active": zod.boolean().optional()
 })
@@ -112,6 +116,8 @@ export const GetFeaturedPropertiesResponseItem = zod.object({
   "additionalFeatures": zod.string().nullish(),
   "photos": zod.array(zod.string()),
   "coverPhoto": zod.string().nullish(),
+  "mapLatitude": zod.number().nullish(),
+  "mapLongitude": zod.number().nullish(),
   "featured": zod.boolean(),
   "active": zod.boolean(),
   "createdAt": zod.string()
@@ -168,6 +174,8 @@ export const GetPropertyResponse = zod.object({
   "additionalFeatures": zod.string().nullish(),
   "photos": zod.array(zod.string()),
   "coverPhoto": zod.string().nullish(),
+  "mapLatitude": zod.number().nullish(),
+  "mapLongitude": zod.number().nullish(),
   "featured": zod.boolean(),
   "active": zod.boolean(),
   "createdAt": zod.string()
@@ -201,6 +209,8 @@ export const UpdatePropertyBody = zod.object({
   "additionalFeatures": zod.string().optional(),
   "photos": zod.array(zod.string()).optional(),
   "coverPhoto": zod.string().optional(),
+  "mapLatitude": zod.number().nullish(),
+  "mapLongitude": zod.number().nullish(),
   "featured": zod.boolean().optional(),
   "active": zod.boolean().optional()
 })
@@ -226,6 +236,8 @@ export const UpdatePropertyResponse = zod.object({
   "additionalFeatures": zod.string().nullish(),
   "photos": zod.array(zod.string()),
   "coverPhoto": zod.string().nullish(),
+  "mapLatitude": zod.number().nullish(),
+  "mapLongitude": zod.number().nullish(),
   "featured": zod.boolean(),
   "active": zod.boolean(),
   "createdAt": zod.string()
@@ -272,6 +284,8 @@ export const GetRelatedPropertiesResponseItem = zod.object({
   "additionalFeatures": zod.string().nullish(),
   "photos": zod.array(zod.string()),
   "coverPhoto": zod.string().nullish(),
+  "mapLatitude": zod.number().nullish(),
+  "mapLongitude": zod.number().nullish(),
   "featured": zod.boolean(),
   "active": zod.boolean(),
   "createdAt": zod.string()

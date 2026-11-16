@@ -350,6 +350,11 @@ components:
             type: string
         coverPhoto:
           type: ["string", "null"]
+        mapLatitude:
+          type: ["number", "null"]
+          description: Centro de la zona aproximada (no la ubicación exacta)
+        mapLongitude:
+          type: ["number", "null"]
         featured:
           type: boolean
         active:
@@ -412,6 +417,10 @@ components:
             type: string
         coverPhoto:
           type: string
+        mapLatitude:
+          type: ["number", "null"]
+        mapLongitude:
+          type: ["number", "null"]
         featured:
           type: boolean
         active:
@@ -463,6 +472,10 @@ components:
             type: string
         coverPhoto:
           type: string
+        mapLatitude:
+          type: ["number", "null"]
+        mapLongitude:
+          type: ["number", "null"]
         featured:
           type: boolean
         active:
