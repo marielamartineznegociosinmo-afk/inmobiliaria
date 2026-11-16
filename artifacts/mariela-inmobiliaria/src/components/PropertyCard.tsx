@@ -3,6 +3,7 @@ import { Bed, Bath, Maximize2, MapPin } from "lucide-react";
 import { Property } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { propertyPath } from "@/lib/property-url";
 
 export function formatPrice(amount: number, currency: string) {
   return `${currency} ${amount.toLocaleString("es-AR")}`;
@@ -13,7 +14,7 @@ export function PropertyCard({ property }: { property: Property }) {
 
   return (
     <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 border-border/50 h-full flex flex-col">
-      <Link href={`/propiedades/${property.id}`} className="block relative aspect-[4/3] overflow-hidden">
+      <Link href={propertyPath(property)} className="block relative aspect-[4/3] overflow-hidden">
         {property.coverPhoto || (property.photos && property.photos.length > 0) ? (
           <img
             src={property.coverPhoto || property.photos[0]}
@@ -55,7 +56,7 @@ export function PropertyCard({ property }: { property: Property }) {
           </p>
         </div>
         
-        <Link href={`/propiedades/${property.id}`} className="hover:text-primary transition-colors">
+        <Link href={propertyPath(property)} className="hover:text-primary transition-colors">
           <h3 className="font-bold text-lg mb-2 line-clamp-2 leading-tight">
             {property.title}
           </h3>

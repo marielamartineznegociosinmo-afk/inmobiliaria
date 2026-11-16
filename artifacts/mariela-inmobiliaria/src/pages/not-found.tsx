@@ -1,13 +1,16 @@
 import { PageTransition } from "@/components/layout/PageTransition";
+import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { Home as HomeIcon } from "lucide-react";
-import { useEffect } from "react";
 
 export default function NotFound() {
-  useEffect(() => {
-    document.title = "Página no encontrada | Mariela Martínez";
-  }, []);
+  useSeo({
+    title: "Página no encontrada | Mariela Martínez",
+    description: "La página que buscás no existe.",
+    path: "/404",
+    index: false,
+  });
 
   return (
     <PageTransition className="min-h-[70vh] flex items-center justify-center bg-background">

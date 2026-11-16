@@ -1,4 +1,5 @@
 import { PageTransition } from "@/components/layout/PageTransition";
+import { useSeo } from "@/lib/seo";
 import { AboutHero } from "@/components/layout/AboutHero";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { customFetch } from "@workspace/api-client-react";
 import { Calculator, ClipboardCheck, MapPin, MessageCircle, CheckCircle2, Mail } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 
 const WA_TASACION = "https://wa.me/5493436214375?text=Hola,%20quiero%20solicitar%20una%20tasación%20para%20mi%20propiedad.";
@@ -55,9 +56,11 @@ export default function Valuations() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    document.title = "Tasaciones | Mariela Martínez Negocios Inmobiliarios";
-  }, []);
+  useSeo({
+    title: "Tasaciones en Paraná | Mariela Martínez Negocios Inmobiliarios",
+    description: "Pedí la tasación de tu casa, departamento o terreno en Paraná. Valuación profesional según el mercado local, con atención personalizada.",
+    path: "/tasaciones",
+  });
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

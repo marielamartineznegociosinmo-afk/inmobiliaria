@@ -6,6 +6,7 @@ import {
   ListPropertiesResponse,
   CreatePropertyBody,
   GetPropertyParams,
+  GetPropertyBySlugParams,
   GetPropertyResponse,
   UpdatePropertyParams,
   UpdatePropertyBody,
@@ -76,6 +77,63 @@ router.get("/properties/stats", async (_req, res): Promise<void> => {
     happyClients: totalAll?.count ?? 0,
   };
   res.json(GetPropertyStatsResponse.parse(stats));
+});
+
+// Pasa un texto a formato de URL: minúsculas, sin acentos, palabras con "-".
+// Debe coincidir con slugify() del frontend (src/lib/property-url.ts).
+function slugify(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+// Busca una propiedad por su link público, por ejemplo
+// "casa-en-venta-barrio-parque-parana-mm-00107". El link siempre termina con
+// el código de la propiedad (MM-00107); el resto (tipo, barrio, etc.) es
+// descriptivo, así que si cambia el barrio los links viejos siguen andando.
+// Las propiedades sin código usan el número interno al final.
+router.get("/properties/by-slug/:slug", async (req, res): Promise<void> => {
+  const rawSlug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug;
+  const parsed = GetPropertyBySlugParams.safeParse({ slug: rawSlug });
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const slug = slugify(parsed.data.slug);
+
+  const withCode = await db
+    .select({ id: propertiesTable.id, propertyCode: propertiesTable.propertyCode })
+    .from(propertiesTable)
+    .where(sql`${propertiesTable.propertyCode} is not null and ${propertiesTable.propertyCode} <> ''`);
+
+  // Si hay más de un código que coincide, gana el más largo (el más específico).
+  let matchId: number | undefined;
+  let matchLength = 0;
+  for (const p of withCode) {
+    const code = slugify(p.propertyCode ?? "");
+    if (!code) continue;
+    if ((slug === code || slug.endsWith(`-${code}`)) && code.length > matchLength) {
+      matchId = p.id;
+      matchLength = code.length;
+    }
+  }
+
+  if (matchId === undefined) {
+    const trailingId = /(?:^|-)(\d+)$/.exec(slug);
+    if (trailingId) matchId = parseInt(trailingId[1], 10);
+  }
+
+  const [row] = matchId === undefined
+    ? []
+    : await db.select().from(propertiesTable).where(eq(propertiesTable.id, matchId));
+  if (!row) {
+    res.status(404).json({ error: "Propiedad no encontrada" });
+    return;
+  }
+  res.json(GetPropertyResponse.parse(serializeProperty(row)));
 });
 
 router.get("/properties/:id", async (req, res): Promise<void> => {

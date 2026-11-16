@@ -10,6 +10,7 @@ import { formatPrice } from "@/components/PropertyCard";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { propertyPath } from "@/lib/property-url";
 
 export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -123,7 +124,7 @@ export default function AdminDashboard() {
                       )}
                     </TableCell>
                     <TableCell className="text-right space-x-2">
-                      <Link href={`/propiedades/${property.id}`} target="_blank">
+                      <Link href={propertyPath(property)} target="_blank">
                         <Button variant="ghost" size="icon" title="Ver en la web">
                           <ExternalLink className="h-4 w-4" />
                         </Button>

@@ -4,37 +4,102 @@ import { PropertyMap } from "@/components/PropertyMap";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useGetProperty, useGetRelatedProperties } from "@workspace/api-client-react";
-import { useRoute, Link } from "wouter";
+import { useGetProperty, useGetPropertyBySlug, useGetRelatedProperties } from "@workspace/api-client-react";
+import { useRoute, useLocation, Link } from "wouter";
+import { propertyPath } from "@/lib/property-url";
+import { useSeo, SITE_URL } from "@/lib/seo";
+import { trackEvent } from "@/lib/analytics";
 import { useEffect, useState } from "react";
 import { MapPin, Bed, Bath, Maximize2, Calendar, Car, Home, ArrowLeft, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 
 export default function PropertyDetail() {
-  const [, params] = useRoute("/propiedades/:id");
-  const id = Number(params?.id);
+  const [, params] = useRoute("/propiedades/:slug");
+  const [, setLocation] = useLocation();
+  const slug = params?.slug ?? "";
+  // Links viejos tipo /propiedades/12 (solo el número interno).
+  const legacyId = /^d+$/.test(slug) ? Number(slug) : 0;
   const [photoIndex, setPhotoIndex] = useState<number | null>(null);
 
-  const { data: property, isLoading } = useGetProperty(id, { 
-    query: { 
-      queryKey: ['property', id], 
-      enabled: !!id 
-  }
+  const byId = useGetProperty(legacyId, {
+    query: {
+      queryKey: ['property', legacyId],
+      enabled: !!legacyId
+    }
   });
-  
+
+  const bySlug = useGetPropertyBySlug(slug, {
+    query: {
+      queryKey: ['property', 'slug', slug],
+      enabled: !!slug && !legacyId
+    }
+  });
+
+  const property = legacyId ? byId.data : bySlug.data;
+  const isLoading = legacyId ? byId.isLoading : bySlug.isLoading;
+  const id = property?.id ?? 0;
+
   const { data: relatedProperties } = useGetRelatedProperties(id, {
     query: {
       queryKey: ['property', id, 'related'],
       enabled: !!id
-  }
+    }
   });
 
+  // Si entraron con un link viejo o desactualizado (cambió el barrio, el
+  // tipo, etc.), se reemplaza por el link correcto sin recargar la página.
+  const canonicalPath = property ? propertyPath(property) : null;
   useEffect(() => {
-    if (property) {
-      document.title = `${property.title} | Mariela Martínez`;
+    if (canonicalPath && canonicalPath !== `/propiedades/${slug}`) {
+      setLocation(canonicalPath, { replace: true });
     }
-  }, [property]);
+  }, [canonicalPath, slug, setLocation]);
+
+  const typeLabel = property ? property.type.charAt(0).toUpperCase() + property.type.slice(1) : "";
+  const seoImage = property ? (property.coverPhoto || property.photos?.[0] || null) : null;
+  useSeo({
+    title: property
+      ? `${typeLabel} en ${property.operation} en ${property.neighborhood}, ${property.city} | Mariela Martínez`
+      : "Propiedad | Mariela Martínez",
+    description: property
+      ? [
+          property.title,
+          `${formatPrice(property.price, property.currency)}.`,
+          property.bedrooms != null ? `${property.bedrooms} dormitorios.` : "",
+          property.totalArea ? `${property.totalArea} m².` : "",
+          property.description ?? "",
+        ].filter(Boolean).join(" ")
+      : "Propiedad en Paraná, Entre Ríos.",
+    path: canonicalPath ?? `/propiedades/${slug}`,
+    image: seoImage,
+    index: isLoading || !!property,
+    jsonLd: property
+      ? {
+          "@context": "https://schema.org",
+          "@type": "RealEstateListing",
+          name: property.title,
+          url: `${SITE_URL}${canonicalPath}`,
+          ...(seoImage ? { image: seoImage } : {}),
+          ...(property.description ? { description: property.description.slice(0, 500) } : {}),
+          offers: {
+            "@type": "Offer",
+            price: property.price,
+            priceCurrency: property.currency,
+            businessFunction: property.operation === "alquiler" ? "http://purl.org/goodrelations/v1#LeaseOut" : "http://purl.org/goodrelations/v1#Sell",
+          },
+          contentLocation: {
+            "@type": "Place",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: property.city,
+              addressRegion: "Entre Ríos",
+              addressCountry: "AR",
+            },
+          },
+        }
+      : null,
+  });
 
   if (isLoading) {
     return (
@@ -237,7 +302,10 @@ const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.t
               <div className="space-y-4">
                 <Button 
                   className="w-full h-14 text-lg font-bold bg-[#25D366] hover:bg-[#1EBE5D] text-white"
-                  onClick={() => window.open(`https://wa.me/5493436214375?text=${encodeURIComponent(whatsappMessage)}`, "_blank")}
+                  onClick={() => {
+                    trackEvent("whatsapp_click", { property_code: property.propertyCode ?? String(property.id) });
+                    window.open(`https://wa.me/5493436214375?text=${encodeURIComponent(whatsappMessage)}`, "_blank");
+                  }}
                 >
                   Consultar por WhatsApp
                 </Button>

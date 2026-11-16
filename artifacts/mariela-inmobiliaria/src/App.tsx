@@ -6,6 +6,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { AnimatePresence } from "framer-motion";
+import { usePageViews } from "@/lib/analytics";
 
 // Pages
 import Home from "@/pages/home";
@@ -45,6 +46,8 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
 }
 
 function Router() {
+  usePageViews();
+
   return (
     <Switch>
       {/* Admin Routes (No public layout) */}
@@ -64,7 +67,7 @@ function Router() {
       <Route path="/propiedades">
         <PublicLayout><PropertiesList /></PublicLayout>
       </Route>
-      <Route path="/propiedades/:id">
+      <Route path="/propiedades/:slug">
         <PublicLayout><PropertyDetail /></PublicLayout>
       </Route>
       <Route path="/nosotros">
