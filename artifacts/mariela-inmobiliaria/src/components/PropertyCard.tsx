@@ -8,6 +8,8 @@ import { optimizedImage } from "@/lib/images";
 import { typeLabel } from "@/lib/property-labels";
 
 export function formatPrice(amount: number, currency: string) {
+  // Precio 0 = "Consultar" (se marca en el panel).
+  if (!amount || amount <= 0) return "Consultar precio";
   return `${currency} ${amount.toLocaleString("es-AR")}`;
 }
 

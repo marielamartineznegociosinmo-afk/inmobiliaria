@@ -66,7 +66,7 @@ export default async function handler(req, res) {
 
   if (property) {
     const type = TYPE_LABELS[property.type] || property.type;
-    const price = `${property.currency} ${Number(property.price).toLocaleString("es-AR")}`;
+    const price = Number(property.price) > 0 ? `${property.currency} ${Number(property.price).toLocaleString("es-AR")}` : "Consultar precio";
     const title = `${type} en ${property.operation} en ${property.neighborhood} · ${price}`;
     const details = [
       property.title,

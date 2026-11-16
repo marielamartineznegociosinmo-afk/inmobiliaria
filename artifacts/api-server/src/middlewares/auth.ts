@@ -1,9 +1,13 @@
 import { type Request, type Response, type NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET ?? "mariela-inmobiliaria-secret-key-2024";
+import { JWT_SECRET } from "../lib/jwt-secret";
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
+  if (!JWT_SECRET) {
+    res.status(503).json({ error: "Panel no disponible: falta configurar JWT_SECRET" });
+    return;
+  }
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     res.status(401).json({ error: "No autorizado" });

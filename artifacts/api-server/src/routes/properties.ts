@@ -207,8 +207,17 @@ router.post("/properties", authMiddleware, async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  const code = normalizeCode(parsed.data.propertyCode);
+  if (code) {
+    const taken = await codeTakenBy(code);
+    if (taken) {
+      res.status(409).json({ error: `El código ${code} ya lo usa "${taken.title}"` });
+      return;
+    }
+  }
   const [row] = await db.insert(propertiesTable).values({
     ...parsed.data,
+    propertyCode: code,
     // Apto crédito es solo para propiedades en venta.
     creditEligible: parsed.data.operation === "venta" ? parsed.data.creditEligible ?? false : false,
     photos: parsed.data.photos ?? [],
@@ -232,6 +241,19 @@ router.put("/properties/:id", authMiddleware, async (req, res): Promise<void> =>
     return;
   }
   const body = { ...bodyParsed.data };
+  if (body.propertyCode !== undefined) {
+    const code = normalizeCode(body.propertyCode);
+    const [current] = await db.select({ propertyCode: propertiesTable.propertyCode }).from(propertiesTable).where(eq(propertiesTable.id, paramsParsed.data.id));
+    // Solo se controla si el código cambia (así se puede editar o pausar una que ya estaba repetida).
+    if (code && code !== normalizeCode(current?.propertyCode)) {
+      const taken = await codeTakenBy(code, paramsParsed.data.id);
+      if (taken) {
+        res.status(409).json({ error: `El código ${code} ya lo usa "${taken.title}"` });
+        return;
+      }
+    }
+    body.propertyCode = code ?? undefined;
+  }
   // Apto crédito es solo para propiedades en venta.
   if (body.operation === "alquiler") body.creditEligible = false;
   const zoneSetByHand = body.mapLatitude !== undefined || body.mapLongitude !== undefined;
@@ -276,6 +298,22 @@ router.delete("/properties/:id", authMiddleware, async (req, res): Promise<void>
   }
   res.json(DeletePropertyResponse.parse({ success: true }));
 });
+
+// Códigos siempre en mayúsculas y sin espacios: "mm-00023 " -> "MM-00023".
+function normalizeCode(code: string | null | undefined): string | null {
+  const c = (code ?? "").trim().toUpperCase().replace(/\s+/g, "");
+  return c || null;
+}
+
+// ¿Otra propiedad ya usa este código? (sin distinguir mayúsculas)
+async function codeTakenBy(code: string, exceptId?: number) {
+  const [row] = await db
+    .select({ id: propertiesTable.id, title: propertiesTable.title })
+    .from(propertiesTable)
+    .where(sql`upper(regexp_replace(${propertiesTable.propertyCode}, '\\s', '', 'g')) = ${code}${exceptId ? sql` and ${propertiesTable.id} <> ${exceptId}` : sql``}`)
+    .limit(1);
+  return row;
+}
 
 function serializeProperty(row: typeof propertiesTable.$inferSelect) {
   return {
