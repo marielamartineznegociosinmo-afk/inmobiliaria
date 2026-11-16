@@ -1,11 +1,16 @@
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { useEffect, useMemo, useState } from "react";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { Search, Loader2 } from "lucide-react";
+import { customFetch } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-// Mapita del panel para elegir la ubicación APROXIMADA de una propiedad.
-// Se hace clic donde va el pin; no hace falta que sea exacto (mejor que no
-// lo sea: el mapa público muestra este punto).
+// Mapita del panel para elegir dónde va el pin de una propiedad.
+// Se escribe la calle y se busca, y después se puede arrastrar el pin (o
+// hacer clic en el mapa) para acomodarlo. Mejor sobre la calle que justo sobre
+// la casa: el mapa público muestra este punto.
 
 export type Zone = { lat: number; lng: number } | null;
 
@@ -26,13 +31,95 @@ function ClickToPlace({ onPick }: { onPick: (zone: Zone) => void }) {
   return null;
 }
 
-export default function ZonePicker({ value, onChange }: { value: Zone; onChange: (zone: Zone) => void }) {
+// Cuando el pin se pone con el buscador, el mapa se mueve hasta ahí.
+function FlyTo({ target }: { target: { lat: number; lng: number; n: number } | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (target) map.setView([target.lat, target.lng], 16);
+  }, [target, map]);
+  return null;
+}
+
+interface ZonePickerProps {
+  value: Zone;
+  onChange: (zone: Zone) => void;
+  /** Dirección cargada en el formulario, para buscarla de una. */
+  address?: string;
+  city?: string;
+}
+
+export default function ZonePicker({ value, onChange, address = "", city = "Paraná" }: ZonePickerProps) {
+  const [query, setQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number; n: number } | null>(null);
+
+  const search = async (text: string) => {
+    const q = text.trim();
+    if (!q) return;
+    setSearching(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({ q, city: city || "Paraná" });
+      const found = await customFetch<{ lat: number; lng: number }>(`/api/geocode?${params.toString()}`, { method: "GET" });
+      onChange(found);
+      setFlyTarget({ ...found, n: Date.now() });
+    } catch {
+      setError("No encontramos esa calle. Probá escribirla de otra forma, o hacé clic en el mapa.");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const markerHandlers = useMemo(
+    () => ({
+      dragend(e: L.LeafletEvent) {
+        const { lat, lng } = (e.target as L.Marker).getLatLng();
+        onChange({ lat, lng });
+      },
+    }),
+    [onChange],
+  );
+
   return (
     <div className="space-y-3">
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            // Enter busca (sin mandar todo el formulario).
+            if (e.key === "Enter") {
+              e.preventDefault();
+              void search(query);
+            }
+          }}
+          placeholder='Escribí la calle, ej.: "Corrientes 293" o "Corrientes y Urquiza"'
+          aria-label="Buscar calle para ubicar el pin"
+        />
+        <div className="flex gap-2 shrink-0">
+          <Button type="button" variant="secondary" onClick={() => void search(query)} disabled={searching || !query.trim()}>
+            {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+            <span className="ml-2">Buscar</span>
+          </Button>
+          {address.trim() && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setQuery(address); void search(address); }}
+              disabled={searching}
+            >
+              Usar la dirección cargada
+            </Button>
+          )}
+        </div>
+      </div>
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
       <div className="h-72 rounded-xl overflow-hidden border relative z-0">
         <MapContainer
           center={value ? [value.lat, value.lng] : PARANA_CENTER}
-          zoom={value ? 14 : 12}
+          zoom={value ? 15 : 12}
           scrollWheelZoom={false}
           style={{ height: "100%", width: "100%", cursor: "crosshair" }}
         >
@@ -41,16 +128,17 @@ export default function ZonePicker({ value, onChange }: { value: Zone; onChange:
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <ClickToPlace onPick={onChange} />
+          <FlyTo target={flyTarget} />
           {value && (
-            <Marker position={[value.lat, value.lng]} icon={PIN} />
+            <Marker position={[value.lat, value.lng]} icon={PIN} draggable eventHandlers={markerHandlers} />
           )}
         </MapContainer>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
         <p>
           {value
-            ? "Hacé clic en el mapa para mover el pin. Ponelo sobre la calle, no justo sobre la casa: el mapa público muestra este punto."
-            : "Todavía no está ubicada. Se ubica sola al guardar, o hacé clic en el mapa para poner el pin sobre la calle."}
+            ? "Arrastrá el pin (o hacé clic en el mapa) para acomodarlo. Ponelo sobre la calle, no justo sobre la casa."
+            : "Todavía no tiene pin. Buscá la calle arriba, hacé clic en el mapa, o dejalo así y se ubica solo al guardar."}
         </p>
         {value && (
           <Button type="button" variant="outline" size="sm" onClick={() => onChange(null)}>

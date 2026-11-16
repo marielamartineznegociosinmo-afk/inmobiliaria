@@ -351,11 +351,13 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Zona en el mapa de propiedades</Label>
+                  <Label>Pin en el mapa de propiedades</Label>
                   <Suspense fallback={<div className="h-72 bg-muted animate-pulse rounded-xl" />}>
                     <ZonePicker
                       value={zone}
                       onChange={(z) => { setZone(z); setZoneTouched(true); }}
+                      address={formData.address}
+                      city={formData.city}
                     />
                   </Suspense>
                 </div>
