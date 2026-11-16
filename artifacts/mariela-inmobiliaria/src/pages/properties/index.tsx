@@ -103,7 +103,8 @@ function matches(p: Property, f: Filters): boolean {
     if (f.minPrice != null && p.price < f.minPrice) return false;
     if (f.maxPrice != null && p.price > f.maxPrice) return false;
   }
-  if (f.credit && !p.creditEligible) return false;
+  // Apto crédito es solo para ventas.
+  if (f.credit && (!p.creditEligible || p.operation !== "venta")) return false;
   return true;
 }
 
@@ -166,7 +167,14 @@ export default function PropertiesList() {
 
   const setOperation = (operation: Operation) =>
     // Al cambiar de operación se borra el precio: venta y alquiler usan monedas distintas.
-    update({ operation, minPrice: null, maxPrice: null, currency: operation === "todos" ? "USD" : DEFAULT_CURRENCY[operation] });
+    update({
+      operation,
+      minPrice: null,
+      maxPrice: null,
+      currency: operation === "todos" ? "USD" : DEFAULT_CURRENCY[operation],
+      // Apto crédito no aplica a alquileres.
+      credit: operation === "alquiler" ? false : filters.credit,
+    });
 
   const clearFilters = () => setLocation(filters.mapView ? "/propiedades?vista=mapa" : "/propiedades");
 
@@ -329,6 +337,7 @@ export default function PropertiesList() {
                 )}
               </div>
 
+              {filters.operation !== "alquiler" && (
               <div className="flex items-center gap-2">
                 <Checkbox
                   id="credito"
@@ -339,6 +348,7 @@ export default function PropertiesList() {
                   Solo apto crédito
                 </Label>
               </div>
+              )}
 
               <Button onClick={applyDrafts} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
                 <Search className="w-4 h-4 mr-2" />

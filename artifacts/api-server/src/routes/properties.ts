@@ -209,6 +209,8 @@ router.post("/properties", authMiddleware, async (req, res): Promise<void> => {
   }
   const [row] = await db.insert(propertiesTable).values({
     ...parsed.data,
+    // Apto crédito es solo para propiedades en venta.
+    creditEligible: parsed.data.operation === "venta" ? parsed.data.creditEligible ?? false : false,
     photos: parsed.data.photos ?? [],
     featured: parsed.data.featured ?? false,
     active: parsed.data.active ?? true,
@@ -230,6 +232,8 @@ router.put("/properties/:id", authMiddleware, async (req, res): Promise<void> =>
     return;
   }
   const body = { ...bodyParsed.data };
+  // Apto crédito es solo para propiedades en venta.
+  if (body.operation === "alquiler") body.creditEligible = false;
   const zoneSetByHand = body.mapLatitude !== undefined || body.mapLongitude !== undefined;
   if (!zoneSetByHand && (body.address !== undefined || body.neighborhood !== undefined || body.city !== undefined)) {
     const [current] = await db.select().from(propertiesTable).where(eq(propertiesTable.id, paramsParsed.data.id));

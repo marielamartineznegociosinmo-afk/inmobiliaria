@@ -50,7 +50,7 @@ export function PropertyCard({ property }: { property: Property }) {
           <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm text-foreground font-semibold px-3 py-1.5 shadow-sm">
             {typeLabel(property.type)}
           </Badge>
-          {property.creditEligible && (
+          {property.creditEligible && isVenta && (
             <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 font-semibold px-3 py-1.5 shadow-sm">
               Apto crédito
             </Badge>
