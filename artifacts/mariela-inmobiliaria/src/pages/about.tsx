@@ -1,12 +1,14 @@
 import { PageTransition } from "@/components/layout/PageTransition";
+import { useSeo } from "@/lib/seo";
 import { CheckCircle2, Shield, HeartHandshake, MapPinHouse, Users, User, HandshakeIcon, KeyRound, ClipboardList, BadgeInfo } from "lucide-react";
-import { useEffect } from "react";
 import { motion } from "framer-motion";
 
 export default function About() {
-  useEffect(() => {
-    document.title = "Nosotros | Mariela Martínez Negocios Inmobiliarios";
-  }, []);
+  useSeo({
+    title: "Nosotros | Mariela Martínez Negocios Inmobiliarios",
+    description: "Conocé a Mariela Martínez Negocios Inmobiliarios: experiencia y atención personalizada para comprar, vender o alquilar tu propiedad en Paraná, Entre Ríos.",
+    path: "/nosotros",
+  });
 
   return (
     <PageTransition>

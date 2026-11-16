@@ -136,6 +136,13 @@ export const GetPropertyStatsResponse = zod.object({
 /**
  * @summary Get a single property
  */
+/**
+ * @summary Get a single property by its public URL slug (ends with the property code)
+ */
+export const GetPropertyBySlugParams = zod.object({
+  "slug": zod.string()
+})
+
 export const GetPropertyParams = zod.object({
   "id": zod.coerce.number()
 })

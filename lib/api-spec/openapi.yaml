@@ -137,6 +137,26 @@ paths:
               schema:
                 $ref: "#/components/schemas/AgencyStats"
 
+  /properties/by-slug/{slug}:
+    get:
+      operationId: getPropertyBySlug
+      tags: [properties]
+      summary: Get a single property by its public URL slug (ends with the property code)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Property detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Property"
+        "404":
+          description: Not found
   /properties/{id}:
     get:
       operationId: getProperty

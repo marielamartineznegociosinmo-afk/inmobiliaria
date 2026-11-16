@@ -1,13 +1,15 @@
 import { PageTransition } from "@/components/layout/PageTransition";
+import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { Calculator, ExternalLink } from "lucide-react";
-import { useEffect } from "react";
 import { AboutHero } from "@/components/layout/AboutHero";
 
 export default function RentalCalculator() {
-  useEffect(() => {
-    document.title = "Calculadora de alquileres | Mariela Martínez Negocios Inmobiliarios";
-  }, []);
+  useSeo({
+    title: "Calculadora de alquileres | Mariela Martínez Negocios Inmobiliarios",
+    description: "Calculá la actualización de tu alquiler en Argentina de forma rápida y gratuita con la calculadora de Mariela Martínez Negocios Inmobiliarios.",
+    path: "/nosotros/calculadora-de-alquileres",
+  });
 
   return (
     <PageTransition>

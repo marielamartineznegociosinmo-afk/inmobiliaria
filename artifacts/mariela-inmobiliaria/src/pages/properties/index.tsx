@@ -1,4 +1,5 @@
 import { PageTransition } from "@/components/layout/PageTransition";
+import { useSeo } from "@/lib/seo";
 import { PropertyCard } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,9 +27,11 @@ export default function PropertiesList() {
   ]);
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    document.title = "Propiedades | Mariela Martínez";
-  }, []);
+  useSeo({
+    title: "Propiedades en venta y alquiler en Paraná | Mariela Martínez Negocios Inmobiliarios",
+    description: "Casas, departamentos, terrenos, locales y campos en venta y alquiler en Paraná, Entre Ríos. Encontrá tu próxima propiedad con fotos, precios y ubicación.",
+    path: "/propiedades",
+  });
 
   // Si ya estamos en /propiedades y el usuario hace clic en otra categoría
   // del menú (o navega con los botones del navegador), la URL cambia pero

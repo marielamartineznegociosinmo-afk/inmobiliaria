@@ -1,4 +1,5 @@
 import { PageTransition } from "@/components/layout/PageTransition";
+import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { customFetch } from "@workspace/api-client-react";
 import { MapPin, Phone, Clock, Instagram, Facebook, MessageCircle, Mail, DollarSign, Home, ClipboardCheck, CheckCircle2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 
 const WA_NUMBER = "5493436214375";
@@ -39,9 +40,11 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    document.title = "Contacto | Mariela Martínez Negocios Inmobiliarios";
-  }, []);
+  useSeo({
+    title: "Contacto | Mariela Martínez Negocios Inmobiliarios",
+    description: "Contactanos por WhatsApp, teléfono o email. Te asesoramos para comprar, vender, alquilar o tasar tu propiedad en Paraná, Entre Ríos.",
+    path: "/contacto",
+  });
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

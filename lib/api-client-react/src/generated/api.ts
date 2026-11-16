@@ -429,6 +429,49 @@ export function useGetPropertyStats<TData = Awaited<ReturnType<typeof getPropert
 
 
 
+export const getGetPropertyBySlugUrl = (slug: string,) => {
+  return `/api/properties/by-slug/${encodeURIComponent(slug)}`
+}
+
+/**
+ * @summary Get a single property by its public URL slug (ends with the property code)
+ */
+export const getPropertyBySlug = async (slug: string, options?: RequestInit): Promise<Property> => {
+  return customFetch<Property>(getGetPropertyBySlugUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+  }
+);}
+
+export const getGetPropertyBySlugQueryKey = (slug: string,) => {
+    return [
+    `/api/properties/by-slug/${slug}`
+    ] as const;
+    }
+
+export const getGetPropertyBySlugQueryOptions = <TData = Awaited<ReturnType<typeof getPropertyBySlug>>, TError = ErrorType<void>>(slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPropertyBySlug>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryKey =  queryOptions?.queryKey ?? getGetPropertyBySlugQueryKey(slug);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPropertyBySlug>>> = ({ signal }) => getPropertyBySlug(slug, { signal, ...requestOptions });
+   return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPropertyBySlug>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPropertyBySlugQueryResult = NonNullable<Awaited<ReturnType<typeof getPropertyBySlug>>>
+export type GetPropertyBySlugQueryError = ErrorType<void>
+
+/**
+ * @summary Get a single property by its public URL slug (ends with the property code)
+ */
+export function useGetPropertyBySlug<TData = Awaited<ReturnType<typeof getPropertyBySlug>>, TError = ErrorType<void>>(
+ slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPropertyBySlug>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPropertyBySlugQueryOptions(slug,options)
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
 export const getGetPropertyUrl = (id: number,) => {
 
 

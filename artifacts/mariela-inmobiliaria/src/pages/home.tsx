@@ -1,11 +1,12 @@
 import { useGetFeaturedProperties, useGetPropertyStats } from "@workspace/api-client-react";
+import { useSeo } from "@/lib/seo";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { PropertyCard } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useLocation } from "wouter";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Search, Building, Home, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -19,9 +20,11 @@ export default function HomePage() {
   const { data: stats } = useGetPropertyStats();
   const featuredList = Array.isArray(featuredProperties) ? featuredProperties : [];
 
-  useEffect(() => {
-    document.title = "Mariela Martínez | Negocios Inmobiliarios en Paraná";
-  }, []);
+  useSeo({
+    title: "Mariela Martínez | Negocios Inmobiliarios en Paraná",
+    description: "Comprá, vendé o alquilá propiedades en Paraná con Mariela Martínez Negocios Inmobiliarios. Casas, departamentos, terrenos, locales y campos con atención personalizada.",
+    path: "/",
+  });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
