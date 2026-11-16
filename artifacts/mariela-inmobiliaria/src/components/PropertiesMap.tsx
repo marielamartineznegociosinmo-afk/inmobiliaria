@@ -6,6 +6,8 @@ import { Link } from "wouter";
 import type { Property } from "@workspace/api-client-react";
 import { formatPrice } from "@/components/PropertyCard";
 import { propertyPath } from "@/lib/property-url";
+import { optimizedImage } from "@/lib/images";
+import { typeLabel } from "@/lib/property-labels";
 
 // Mapa con todas las propiedades. Cada pin está sobre la calle de la
 // propiedad, pero no en la casa exacta (el servidor ubica la mitad de la
@@ -79,7 +81,6 @@ export default function PropertiesMap({ properties }: { properties: Property[] }
           <FitToProperties points={points} />
           {located.map((p) => {
             const photo = p.coverPhoto || p.photos?.[0];
-            const typeLabel = p.type.charAt(0).toUpperCase() + p.type.slice(1);
             return (
               <Marker
                 key={p.id}
@@ -90,10 +91,10 @@ export default function PropertiesMap({ properties }: { properties: Property[] }
                 <Popup minWidth={220} maxWidth={240}>
                   <div className="w-[220px] font-sans">
                     {photo && (
-                      <img src={photo} alt={p.title} className="w-full h-32 object-cover rounded-md mb-2" loading="lazy" />
+                      <img src={optimizedImage(photo, 480)} alt={p.title} className="w-full h-32 object-cover rounded-md mb-2" loading="lazy" />
                     )}
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground !m-0">
-                      {typeLabel} en {p.operation}
+                      {typeLabel(p.type)} en {p.operation}
                     </p>
                     <p className="font-bold text-base leading-tight !my-1 text-foreground">{p.title}</p>
                     <p className="text-lg font-bold !m-0" style={{ color: PRIMARY }}>

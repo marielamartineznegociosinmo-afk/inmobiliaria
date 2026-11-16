@@ -45,7 +45,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [casa, departamento, terreno, local, oficina, campo]
+            enum: [casa, departamento, terreno, local, oficina, campo, cochera, galpon]
         - name: neighborhood
           in: query
           schema:
@@ -315,7 +315,7 @@ components:
           type: ["string", "null"]
         type:
           type: string
-          enum: [casa, departamento, terreno, local, oficina, campo]
+          enum: [casa, departamento, terreno, local, oficina, campo, cochera, galpon]
         operation:
           type: string
           enum: [venta, alquiler]
@@ -340,6 +340,9 @@ components:
           type: ["number", "null"]
         garage:
           type: ["boolean", "null"]
+        creditEligible:
+          type: ["boolean", "null"]
+          description: Apta crédito hipotecario
         age:
           type: ["integer", "null"]
         additionalFeatures:
@@ -382,7 +385,7 @@ components:
           type: string
         type:
           type: string
-          enum: [casa, departamento, terreno, local, oficina, campo]
+          enum: [casa, departamento, terreno, local, oficina, campo, cochera, galpon]
         operation:
           type: string
           enum: [venta, alquiler]
@@ -406,6 +409,8 @@ components:
         totalArea:
           type: number
         garage:
+          type: boolean
+        creditEligible:
           type: boolean
         age:
           type: integer
@@ -437,7 +442,7 @@ components:
           type: string
         type:
           type: string
-          enum: [casa, departamento, terreno, local, oficina, campo]
+          enum: [casa, departamento, terreno, local, oficina, campo, cochera, galpon]
         operation:
           type: string
           enum: [venta, alquiler]
@@ -461,6 +466,8 @@ components:
         totalArea:
           type: number
         garage:
+          type: boolean
+        creditEligible:
           type: boolean
         age:
           type: integer

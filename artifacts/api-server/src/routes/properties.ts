@@ -30,6 +30,12 @@ router.get("/properties", async (req, res): Promise<void> => {
     return;
   }
   const q = parsed.data;
+  // zod.coerce.boolean convierte el texto "false" en true: se lee a mano para
+  // que ?active=false (propiedades pausadas) funcione.
+  const rawActive = typeof req.query.active === "string" ? req.query.active : undefined;
+  if (rawActive !== undefined) q.active = rawActive === "true";
+  const rawFeatured = typeof req.query.featured === "string" ? req.query.featured : undefined;
+  if (rawFeatured !== undefined) q.featured = rawFeatured === "true";
   const conditions = [];
 
   if (q.operation) conditions.push(eq(propertiesTable.operation, q.operation));

@@ -19,6 +19,8 @@ export const PropertyType = {
   local: 'local',
   oficina: 'oficina',
   campo: 'campo',
+  cochera: 'cochera',
+  galpon: 'galpon',
 } as const;
 
 export type PropertyOperation = typeof PropertyOperation[keyof typeof PropertyOperation];
@@ -62,6 +64,8 @@ export interface Property {
   /** @nullable */
   garage?: boolean | null;
   /** @nullable */
+  creditEligible?: boolean | null;
+  /** @nullable */
   age?: number | null;
   /** @nullable */
   additionalFeatures?: string | null;
@@ -87,6 +91,8 @@ export const PropertyInputType = {
   local: 'local',
   oficina: 'oficina',
   campo: 'campo',
+  cochera: 'cochera',
+  galpon: 'galpon',
 } as const;
 
 export type PropertyInputOperation = typeof PropertyInputOperation[keyof typeof PropertyInputOperation];
@@ -121,6 +127,7 @@ export interface PropertyInput {
   coveredArea?: number;
   totalArea?: number;
   garage?: boolean;
+  creditEligible?: boolean;
   age?: number;
   additionalFeatures?: string;
   photos?: string[];
@@ -143,6 +150,8 @@ export const PropertyUpdateType = {
   local: 'local',
   oficina: 'oficina',
   campo: 'campo',
+  cochera: 'cochera',
+  galpon: 'galpon',
 } as const;
 
 export type PropertyUpdateOperation = typeof PropertyUpdateOperation[keyof typeof PropertyUpdateOperation];
@@ -177,6 +186,7 @@ export interface PropertyUpdate {
   coveredArea?: number;
   totalArea?: number;
   garage?: boolean;
+  creditEligible?: boolean;
   age?: number;
   additionalFeatures?: string;
   photos?: string[];
@@ -247,5 +257,7 @@ export const ListPropertiesType = {
   local: 'local',
   oficina: 'oficina',
   campo: 'campo',
+  cochera: 'cochera',
+  galpon: 'galpon',
 } as const;
 
