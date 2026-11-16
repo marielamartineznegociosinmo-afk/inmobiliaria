@@ -181,6 +181,7 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
       age: formData.age ? Number(formData.age) : undefined,
       price: Number(formData.price),
       propertyCode: formData.propertyCode || undefined,
+      creditEligible: formData.operation === "venta" ? formData.creditEligible : false,
       ...(zoneTouched ? { mapLatitude: zone?.lat ?? null, mapLongitude: zone?.lng ?? null } : {}),
     };
 
@@ -402,14 +403,17 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                   <Label htmlFor="garage">Tiene cochera</Label>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="creditEligible" 
-                    checked={formData.creditEligible} 
-                    onCheckedChange={c => handleInputChange("creditEligible", !!c)} 
-                  />
-                  <Label htmlFor="creditEligible">Apta crédito hipotecario</Label>
-                </div>
+                {/* Apto crédito es solo para propiedades en venta. */}
+                {formData.operation === "venta" && (
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="creditEligible" 
+                      checked={formData.creditEligible} 
+                      onCheckedChange={c => handleInputChange("creditEligible", !!c)} 
+                    />
+                    <Label htmlFor="creditEligible">Apta crédito hipotecario</Label>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="additionalFeatures">Características adicionales</Label>

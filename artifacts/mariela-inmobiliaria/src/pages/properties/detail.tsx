@@ -146,7 +146,7 @@ export default function PropertyDetail() {
     { icon: <Maximize2 className="w-5 h-5 text-muted-foreground" />, label: "Sup. Total", value: property.totalArea ? `${property.totalArea} m²` : null },
     { icon: <Car className="w-5 h-5 text-muted-foreground" />, label: "Cochera", value: property.garage ? "Sí" : "No" },
     { icon: <Home className="w-5 h-5 text-muted-foreground" />, label: "Tipo", value: labelForType(property.type) },
-    { icon: <BadgeCheck className="w-5 h-5 text-muted-foreground" />, label: "Apto crédito", value: property.creditEligible ? "Sí" : null },
+    { icon: <BadgeCheck className="w-5 h-5 text-muted-foreground" />, label: "Apto crédito", value: property.creditEligible && property.operation === "venta" ? "Sí" : null },
     {/*
     { icon: <Calendar className="w-5 h-5 text-muted-foreground" />, label: "Antigüedad", value: property.age ? `${property.age} años` : "A estrenar" },
       */}
@@ -247,7 +247,7 @@ const whatsappMessage = `Hola, quiero consultar sobre la propiedad: ${property.t
                   {property.operation.toUpperCase()}
                 </Badge>
                 <Badge variant="outline" className="bg-background">{labelForType(property.type)}</Badge>
-                {property.creditEligible && (
+                {property.creditEligible && property.operation === "venta" && (
                   <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">APTO CRÉDITO</Badge>
                 )}
               </div>
