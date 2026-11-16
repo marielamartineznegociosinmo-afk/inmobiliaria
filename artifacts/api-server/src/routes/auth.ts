@@ -7,9 +7,13 @@ import { AdminLoginBody, AdminLoginResponse } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
-const JWT_SECRET = process.env.JWT_SECRET ?? "mariela-inmobiliaria-secret-key-2024";
+import { JWT_SECRET } from "../lib/jwt-secret";
 
 router.post("/auth/login", async (req, res): Promise<void> => {
+  if (!JWT_SECRET) {
+    res.status(503).json({ error: "Panel no disponible: falta configurar JWT_SECRET" });
+    return;
+  }
   const parsed = AdminLoginBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -30,5 +34,4 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   res.json(AdminLoginResponse.parse({ token }));
 });
 
-export { JWT_SECRET };
 export default router;

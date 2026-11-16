@@ -86,12 +86,12 @@ export default function PropertyDetail() {
           url: `${SITE_URL}${canonicalPath}`,
           ...(seoImage ? { image: seoImage } : {}),
           ...(property.description ? { description: property.description.slice(0, 500) } : {}),
-          offers: {
+          ...(property.price > 0 ? { offers: {
             "@type": "Offer",
             price: property.price,
             priceCurrency: property.currency,
             businessFunction: property.operation === "alquiler" ? "http://purl.org/goodrelations/v1#LeaseOut" : "http://purl.org/goodrelations/v1#Sell",
-          },
+          } } : {}),
           contentLocation: {
             "@type": "Place",
             address: {

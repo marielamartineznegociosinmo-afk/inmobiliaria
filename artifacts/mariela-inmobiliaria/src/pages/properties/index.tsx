@@ -99,7 +99,7 @@ function matches(p: Property, f: Filters): boolean {
     if (wanted >= 4 ? p.bedrooms < 4 : p.bedrooms !== wanted) return false;
   }
   if (f.operation !== "todos" && (f.minPrice != null || f.maxPrice != null)) {
-    if (p.currency !== f.currency) return false;
+    if (p.currency !== f.currency || p.price <= 0) return false;
     if (f.minPrice != null && p.price < f.minPrice) return false;
     if (f.maxPrice != null && p.price > f.maxPrice) return false;
   }
@@ -113,7 +113,11 @@ function sortProperties(list: Property[], sort: SortOrder): Property[] {
   if (sort === "precio-asc" || sort === "precio-desc") {
     const dir = sort === "precio-asc" ? 1 : -1;
     // Primero se agrupa por moneda (no se comparan dólares con pesos).
-    copy.sort((a, b) => (a.currency === b.currency ? (a.price - b.price) * dir : a.currency === "USD" ? -1 : 1));
+    copy.sort((a, b) => {
+      // "Consultar precio" siempre al final.
+      if ((a.price > 0) !== (b.price > 0)) return a.price > 0 ? -1 : 1;
+      return a.currency === b.currency ? (a.price - b.price) * dir : a.currency === "USD" ? -1 : 1;
+    });
   } else {
     copy.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }

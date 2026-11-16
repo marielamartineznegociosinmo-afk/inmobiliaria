@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { customFetch, useCreateProperty, useUpdateProperty, useGetProperty, getListPropertiesQueryKey, type Property } from "@workspace/api-client-react";
+import { customFetch, useCreateProperty, useUpdateProperty, useGetProperty, useListProperties, getListPropertiesQueryKey, type Property } from "@workspace/api-client-react";
+import { normalizeCode, addressHasNumber, isPriceOnRequest } from "@/lib/property-checks";
 import { useRoute, useLocation, Link } from "wouter";
 import { useState, lazy, Suspense } from "react";
 import type { Zone } from "@/components/ZonePicker";
@@ -38,11 +39,13 @@ const CURRENCY_LABELS: Record<string, string> = {
 function buildFormData(property?: Property) {
   return {
     title: property?.title || "",
-    propertyCode: property?.propertyCode || "",
+    propertyCode: property?.propertyCode ? normalizeCode(property.propertyCode) : "",
     description: property?.description || "",
     type: (property?.type ?? "casa") as any,
     operation: (property?.operation ?? "venta") as any,
     price: property?.price || 0,
+    // Precio 0 = "Consultar".
+    priceOnRequest: property ? isPriceOnRequest(property.price) : false,
     currency: (property?.currency ?? "USD") as any,
     neighborhood: property?.neighborhood || "",
     address: property?.address || "",
@@ -98,6 +101,16 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
 
   const [formData, setFormData] = useState(() => buildFormData(property));
   const [uploadingFiles, setUploadingFiles] = useState(false);
+  const { data: activeList } = useListProperties({ active: true });
+  const { data: pausedList } = useListProperties({ active: false });
+  const typedCode = normalizeCode(formData.propertyCode);
+  // Solo se controla si el código es nuevo o cambió (así se puede editar una que ya estaba repetida).
+  const codeChanged = typedCode !== normalizeCode(property?.propertyCode ?? "");
+  const duplicateOf = typedCode && codeChanged
+    ? [...(activeList ?? []), ...(pausedList ?? [])].find(
+        (p) => p.id !== property?.id && p.propertyCode && normalizeCode(p.propertyCode) === typedCode,
+      )
+    : undefined;
   // Zona aproximada en el mapa. Solo se envía si se tocó en este formulario;
   // si no, el servidor la calcula sola a partir de la dirección.
   const [zone, setZone] = useState<Zone>(() =>
@@ -113,16 +126,16 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    
+
     setUploadingFiles(true);
     try {
       const newUrls: string[] = [];
-      
+
       for (let i = 0; i < e.target.files.length; i++) {
         const file = e.target.files[i];
         const fd = new FormData();
         fd.append("file", file);
-        
+
         const result = await customFetch<{ url: string }>("/api/upload", {
           method: "POST",
           body: fd,
@@ -130,13 +143,13 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
 
         newUrls.push(result.url);
       }
-      
+
       setFormData(prev => ({
         ...prev,
         photos: [...prev.photos, ...newUrls],
         coverPhoto: prev.coverPhoto || newUrls[0] // Set first uploaded as cover if none exists
       }));
-      
+
       toast({
         title: "Fotos subidas",
         description: `Se han subido ${newUrls.length} fotos correctamente.`,
@@ -171,7 +184,11 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (duplicateOf) {
+      toast({ variant: "destructive", title: "Código repetido", description: `El código ${typedCode} ya lo usa "${duplicateOf.title}".` });
+      return;
+    }
+
     const payload = {
       ...formData,
       bedrooms: formData.bedrooms ? Number(formData.bedrooms) : undefined,
@@ -179,8 +196,8 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
       coveredArea: formData.coveredArea ? Number(formData.coveredArea) : undefined,
       totalArea: formData.totalArea ? Number(formData.totalArea) : undefined,
       age: formData.age ? Number(formData.age) : undefined,
-      price: Number(formData.price),
-      propertyCode: formData.propertyCode || undefined,
+      price: formData.priceOnRequest ? 0 : Number(formData.price),
+      propertyCode: typedCode || undefined,
       creditEligible: formData.operation === "venta" ? formData.creditEligible : false,
       ...(zoneTouched ? { mapLatitude: zone?.lat ?? null, mapLongitude: zone?.lng ?? null } : {}),
     };
@@ -229,39 +246,45 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
 
       <form onSubmit={handleSubmit} className="space-y-8 max-w-5xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Main Info */}
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardContent className="p-6 space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="title" className="text-base font-semibold">Título de la publicación <span className="text-destructive">*</span></Label>
-                  <Input 
-                    id="title" 
-                    value={formData.title} 
-                    onChange={e => handleInputChange("title", e.target.value)} 
-                    required 
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={e => handleInputChange("title", e.target.value)}
+                    required
                     placeholder="Ej. Excelente Casa en Barrio Urquiza"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="propertyCode" className="text-base font-semibold">Código de propiedad</Label>
-                  <Input 
-                    id="propertyCode" 
-                    value={formData.propertyCode} 
-                    onChange={e => handleInputChange("propertyCode", e.target.value)} 
-                    placeholder="Ej. MZ-1234"
+                  <Input
+                    id="propertyCode"
+                    value={formData.propertyCode}
+                    onChange={e => handleInputChange("propertyCode", e.target.value.toUpperCase())}
+                    placeholder="Ej. MM-00123"
+                    aria-invalid={!!duplicateOf}
                   />
+                  {duplicateOf && (
+                    <p className="text-sm text-destructive">
+                      Este código ya lo usa "{duplicateOf.title}"{duplicateOf.active ? "" : " (pausada)"}. Usá otro código.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="description" className="text-base font-semibold">Descripción <span className="text-destructive">*</span></Label>
-                  <Textarea 
-                    id="description" 
-                    value={formData.description} 
-                    onChange={e => handleInputChange("description", e.target.value)} 
-                    required 
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={e => handleInputChange("description", e.target.value)}
+                    required
                     className="min-h-[200px]"
                     placeholder="Detalles, estado, ventajas de ubicación..."
                   />
@@ -298,15 +321,27 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="price">Precio <span className="text-destructive">*</span></Label>
-                    <Input 
-                      id="price" 
-                      type="number" 
-                      min="0"
-                      value={formData.price} 
-                      onChange={e => handleInputChange("price", e.target.value)} 
-                      required 
-                    />
+                    <Label htmlFor="price">Precio {!formData.priceOnRequest && <span className="text-destructive">*</span>}</Label>
+                    {formData.priceOnRequest ? (
+                      <div className="h-9 flex items-center px-3 rounded-md border bg-muted text-muted-foreground text-sm">Consultar</div>
+                    ) : (
+                      <Input
+                        id="price"
+                        type="number"
+                        min="1"
+                        value={formData.price || ""}
+                        onChange={e => handleInputChange("price", e.target.value)}
+                        required
+                      />
+                    )}
+                    <div className="flex items-center space-x-2 pt-1">
+                      <Checkbox
+                        id="priceOnRequest"
+                        checked={formData.priceOnRequest}
+                        onCheckedChange={c => handleInputChange("priceOnRequest", !!c)}
+                      />
+                      <Label htmlFor="priceOnRequest" className="font-normal">Precio a consultar (no mostrar precio)</Label>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="currency">Moneda <span className="text-destructive">*</span></Label>
@@ -328,30 +363,35 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="neighborhood">Barrio / Zona <span className="text-destructive">*</span></Label>
-                    <Input 
-                      id="neighborhood" 
-                      value={formData.neighborhood} 
-                      onChange={e => handleInputChange("neighborhood", e.target.value)} 
-                      required 
+                    <Input
+                      id="neighborhood"
+                      value={formData.neighborhood}
+                      onChange={e => handleInputChange("neighborhood", e.target.value)}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="city">Ciudad <span className="text-destructive">*</span></Label>
-                    <Input 
-                      id="city" 
-                      value={formData.city} 
-                      onChange={e => handleInputChange("city", e.target.value)} 
-                      required 
+                    <Input
+                      id="city"
+                      value={formData.city}
+                      onChange={e => handleInputChange("city", e.target.value)}
+                      required
                     />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="address">Dirección (Uso interno o visible) <span className="text-destructive">*</span></Label>
-                    <Input 
-                      id="address" 
-                      value={formData.address} 
-                      onChange={e => handleInputChange("address", e.target.value)} 
-                      required 
+                    <Input
+                      id="address"
+                      value={formData.address}
+                      onChange={e => handleInputChange("address", e.target.value)}
+                      required
                     />
+                    {formData.address.trim() && !addressHasNumber(formData.address) && (
+                      <p className="text-sm text-amber-700">
+                        ⚠ Sin altura: agregá una altura aproximada (ej. "Gualeguay 1200") o la esquina, para que el pin del mapa quede en la cuadra correcta.
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -395,10 +435,10 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                 </div>
 
                 <div className="flex items-center space-x-2 pt-2">
-                  <Checkbox 
-                    id="garage" 
-                    checked={formData.garage} 
-                    onCheckedChange={c => handleInputChange("garage", !!c)} 
+                  <Checkbox
+                    id="garage"
+                    checked={formData.garage}
+                    onCheckedChange={c => handleInputChange("garage", !!c)}
                   />
                   <Label htmlFor="garage">Tiene cochera</Label>
                 </div>
@@ -406,10 +446,10 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                 {/* Apto crédito es solo para propiedades en venta. */}
                 {formData.operation === "venta" && (
                   <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="creditEligible" 
-                      checked={formData.creditEligible} 
-                      onCheckedChange={c => handleInputChange("creditEligible", !!c)} 
+                    <Checkbox
+                      id="creditEligible"
+                      checked={formData.creditEligible}
+                      onCheckedChange={c => handleInputChange("creditEligible", !!c)}
                     />
                     <Label htmlFor="creditEligible">Apta crédito hipotecario</Label>
                   </div>
@@ -417,10 +457,10 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
 
                 <div className="space-y-2">
                   <Label htmlFor="additionalFeatures">Características adicionales</Label>
-                  <Textarea 
-                    id="additionalFeatures" 
-                    value={formData.additionalFeatures} 
-                    onChange={e => handleInputChange("additionalFeatures", e.target.value)} 
+                  <Textarea
+                    id="additionalFeatures"
+                    value={formData.additionalFeatures}
+                    onChange={e => handleInputChange("additionalFeatures", e.target.value)}
                     placeholder="Pileta, quincho, losa radiante..."
                   />
                 </div>
@@ -433,12 +473,12 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
             <Card>
               <CardContent className="p-6 space-y-6">
                 <h3 className="font-semibold text-lg border-b pb-2">Estado</h3>
-                
+
                 <div className="flex items-center space-x-2 bg-muted/50 p-4 rounded-lg">
-                  <Checkbox 
-                    id="active" 
-                    checked={formData.active} 
-                    onCheckedChange={c => handleInputChange("active", !!c)} 
+                  <Checkbox
+                    id="active"
+                    checked={formData.active}
+                    onCheckedChange={c => handleInputChange("active", !!c)}
                   />
                   <div className="space-y-1 leading-none">
                     <Label htmlFor="active" className="font-bold">Propiedad Activa</Label>
@@ -447,10 +487,10 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                 </div>
 
                 <div className="flex items-center space-x-2 bg-muted/50 p-4 rounded-lg">
-                  <Checkbox 
-                    id="featured" 
-                    checked={formData.featured} 
-                    onCheckedChange={c => handleInputChange("featured", !!c)} 
+                  <Checkbox
+                    id="featured"
+                    checked={formData.featured}
+                    onCheckedChange={c => handleInputChange("featured", !!c)}
                   />
                   <div className="space-y-1 leading-none">
                     <Label htmlFor="featured" className="font-bold">Destacar en Inicio</Label>
@@ -463,13 +503,13 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
             <Card>
               <CardContent className="p-6 space-y-6">
                 <h3 className="font-semibold text-lg border-b pb-2">Fotos</h3>
-                
+
                 <div>
                   <div className="border-2 border-dashed border-border rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-muted/50 transition-colors relative">
-                    <input 
-                      type="file" 
-                      multiple 
-                      accept="image/*" 
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
                       className="absolute inset-0 opacity-0 cursor-pointer"
                       onChange={handleFileUpload}
                       disabled={uploadingFiles}
@@ -489,16 +529,16 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
                         <div key={i} className={`relative group aspect-square rounded-lg overflow-hidden border-2 ${formData.coverPhoto === photo ? 'border-primary' : 'border-transparent'}`}>
                           <img src={photo} alt={`Foto ${i}`} className="w-full h-full object-cover" />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
-                            <button 
-                              type="button" 
+                            <button
+                              type="button"
                               onClick={() => removePhoto(i)}
                               className="self-end bg-destructive text-white rounded-full p-1 hover:bg-destructive/90"
                             >
                               <X className="w-4 h-4" />
                             </button>
                             {formData.coverPhoto !== photo && (
-                              <button 
-                                type="button" 
+                              <button
+                                type="button"
                                 onClick={() => setAsCover(photo)}
                                 className="bg-primary text-white text-xs font-bold py-1 rounded w-full mt-auto hover:bg-primary/90"
                               >
@@ -519,8 +559,8 @@ function PropertyFormFields({ isEditing, id, property }: { isEditing: boolean; i
               </CardContent>
             </Card>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90"
               disabled={isPending}
             >
